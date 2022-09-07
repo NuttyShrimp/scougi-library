@@ -6,6 +6,8 @@ import { theme } from '../lib/theme'
 import { Footer } from '../components/Footer'
 import { SessionProvider } from 'next-auth/react'
 import { RouteGuard } from '../components/RouteGuard'
+import { ModalsProvider } from '@mantine/modals'
+import { NotificationsProvider } from '@mantine/notifications'
 
 function MyApp({ Component, pageProps: { session, ...pageProps } }: AppProps) {
   return (
@@ -19,9 +21,13 @@ function MyApp({ Component, pageProps: { session, ...pageProps } }: AppProps) {
           withNormalizeCSS
           theme={theme}
         >
-          <RouteGuard>
-            <Component {...pageProps} />
-          </RouteGuard>
+          <ModalsProvider>
+            <NotificationsProvider>
+              <RouteGuard>
+                <Component {...pageProps} />
+              </RouteGuard>
+            </NotificationsProvider>
+          </ModalsProvider>
           <Footer />
         </MantineProvider>
       </div>

@@ -20,7 +20,7 @@ export const RouteGuard: FC<PropsWithChildren<{}>> = ({ children }) => {
     }
   }, [loading, hasUser, session]);
 
-  if (!router.pathname.startsWith('/admin')) {
+  if (!router.pathname.startsWith('/admin') || router.pathname === '/admin/notapproved') {
     return children;
   }
 
