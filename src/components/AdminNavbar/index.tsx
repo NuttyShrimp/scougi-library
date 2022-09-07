@@ -2,7 +2,7 @@ import { faHouse, faUserClock, faUserGroup, IconDefinition } from "@fortawesome/
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { createStyles, Navbar } from "@mantine/core";
 import { useRouter } from "next/router";
-import React, { FC, useState } from "react";
+import React, { FC, useEffect, useState } from "react";
 
 const links: { link: string, label: string, icon: IconDefinition }[] = [
   {
@@ -78,9 +78,14 @@ export const AdminNavbar: FC = () => {
   const [active, setActive] = useState(links?.[0]?.label);
   const router = useRouter();
 
+  useEffect(() => {
+    const entry = links.find(l => l.link === router.pathname)
+    if (!entry) return;
+    setActive(entry?.label)
+  }, [router.pathname])
+
   const linkElems = links.map(l => (
-    <a
-      href='/admin/users'
+    <div
       className={cx(classes.link, { [classes.linkActive]: l.label === active })}
       key={l.label}
       onClick={(event) => {
@@ -93,7 +98,7 @@ export const AdminNavbar: FC = () => {
         <FontAwesomeIcon icon={l.icon} className={classes.linkIcon} />
         <span>{l.label} </span>
       </span>
-    </a>
+    </div>
   ))
 
   return (
