@@ -53,7 +53,7 @@ const Scougis: NextPage<ScougiAdminProps> = props => {
 
 export const getServerSideProps: GetServerSideProps<ScougiAdminProps> = async () => {
   const today = new Date();
-  let thisYear = today.getMonth() < 8 ? `${today.getFullYear() - 1}-${today.getFullYear()}` : `${today.getFullYear()}-${today.getFullYear() + 1}`
+  const thisYear = today.getMonth() < 8 ? `${today.getFullYear() - 1}-${today.getFullYear()}` : `${today.getFullYear()}-${today.getFullYear() + 1}`
   const published = await prisma.scougi.findMany({
     select: {
       year: true,
