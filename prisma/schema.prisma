@@ -61,3 +61,12 @@ model VerificationToken {
   @@unique([identifier, token])
 }
 // endregion
+
+model Scougi {
+  id Int @id @default(autoincrement())
+  year String
+  trim Int
+  url String
+  
+  @@unique([year, trim])
+}

@@ -1,4 +1,4 @@
-import { faHouse, faUserClock, faUserGroup, IconDefinition } from "@fortawesome/free-solid-svg-icons";
+import { faHouse, faNewspaper, faUserClock, faUserGroup, IconDefinition } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { createStyles, Navbar } from "@mantine/core";
 import { useRouter } from "next/router";
@@ -9,6 +9,11 @@ const links: { link: string, label: string, icon: IconDefinition }[] = [
     link: '/admin',
     label: "Admin Home",
     icon: faHouse
+  },
+  {
+    link: '/admin/scougis',
+    label: "Published Scougis",
+    icon: faNewspaper,
   },
   {
     link: '/admin/users',
