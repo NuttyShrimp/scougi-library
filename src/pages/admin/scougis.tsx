@@ -1,7 +1,14 @@
 import DropboxChooser from "react-dropbox-chooser";
-import { faCircleCheck, faFileUpload, faPaperPlane, faXmarkCircle } from "@fortawesome/free-solid-svg-icons";
+import {
+  faCircleCheck,
+  faExternalLink,
+  faFileUpload,
+  faPaperPlane,
+  faTrash,
+  faXmarkCircle,
+} from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { Button, Container, Divider, Group, Select, Title, Text, Table, Anchor, Checkbox } from "@mantine/core";
+import { Button, Container, Divider, Group, Select, Title, Text, Table, Anchor, Checkbox, Menu } from "@mantine/core";
 import { GetServerSideProps, NextPage } from "next";
 import prisma from "../../lib/prisma";
 import React, { useState } from "react";
@@ -9,6 +16,7 @@ import { TrimesterNames } from "../../enums/trimesterNames";
 import { showNotification } from "@mantine/notifications";
 import { flushSync } from "react-dom";
 import { pdfjs } from "react-pdf";
+import { useRouter } from "next/router";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
@@ -20,10 +28,15 @@ declare interface ScougiAdminProps {
 }
 
 const Scougis: NextPage<ScougiAdminProps> = props => {
+  const router = useRouter();
   const [selectedYear, setSelectedYear] = useState(props.currentYear);
   const [selectedTrim, setSelectedTrim] = useState(props.years[props.currentYear][0] ?? undefined);
   const [selectedFile, setSelectedFile] = useState<Dropbox.File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+
+  const refreshData = () => {
+    router.replace(router.asPath);
+  };
 
   const publishScougi = async () => {
     if (!selectedFile) return;
@@ -40,21 +53,23 @@ const Scougis: NextPage<ScougiAdminProps> = props => {
           url: selectedFile?.link,
         }),
       });
-      showNotification(
-        res.ok
-          ? {
-              title: `Successfully published a new scougi`,
-              message: "Refresh your page to see the changes",
-              color: "green",
-              icon: <FontAwesomeIcon icon={faCircleCheck} />,
-            }
-          : {
-              title: "Failed to publish",
-              message: "Something went wrong while trying to publish a new scougi, Try again later",
-              color: "red",
-              icon: <FontAwesomeIcon icon={faXmarkCircle} />,
-            }
-      );
+      if (!res.ok) {
+        showNotification({
+          title: "Failed to publish",
+          message: "Something went wrong while trying to publish a new scougi, Try again later",
+          color: "red",
+          icon: <FontAwesomeIcon icon={faXmarkCircle} />,
+        });
+      }
+      showNotification({
+        title: `Successfully published a new scougi`,
+        message: "Refresh your page to see the changes",
+        color: "green",
+        icon: <FontAwesomeIcon icon={faCircleCheck} />,
+      });
+      if (res.ok) {
+        refreshData();
+      }
     } catch (e) {
       console.error(e);
       showNotification({
@@ -95,10 +110,49 @@ const Scougis: NextPage<ScougiAdminProps> = props => {
         color: "green",
         icon: <FontAwesomeIcon icon={faCircleCheck} />,
       });
+      refreshData();
     } catch (e) {
       console.error(e);
       showNotification({
         title: `Failed toggle the hidden state of the edition`,
+        message: "",
+        color: "red",
+        icon: <FontAwesomeIcon icon={faXmarkCircle} />,
+      });
+    }
+  };
+
+  const deleteScougi = async (id: number) => {
+    try {
+      const res = await fetch("/api/scougi/delete", {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          id,
+        }),
+      });
+      if (!res.ok) {
+        showNotification({
+          title: `Failed to delete the edition`,
+          message: "",
+          color: "red",
+          icon: <FontAwesomeIcon icon={faXmarkCircle} />,
+        });
+        return;
+      }
+      showNotification({
+        title: `Successfully deleted the edition`,
+        message: "",
+        color: "green",
+        icon: <FontAwesomeIcon icon={faCircleCheck} />,
+      });
+      refreshData();
+    } catch (e) {
+      console.error(e);
+      showNotification({
+        title: `Failed to delete the edition`,
         message: "",
         color: "red",
         icon: <FontAwesomeIcon icon={faXmarkCircle} />,
@@ -172,6 +226,7 @@ const Scougis: NextPage<ScougiAdminProps> = props => {
             <th>Year</th>
             <th>Trimester</th>
             <th>Hidden</th>
+            <th style={{ width: "8vw" }} />
           </tr>
         </thead>
         <tbody>
@@ -181,6 +236,27 @@ const Scougis: NextPage<ScougiAdminProps> = props => {
               <td>{TrimesterNames[s.trim]}</td>
               <td>
                 <Checkbox checked={s.hidden} onChange={e => toggleScougiHide(s.id, e.currentTarget.checked)} />
+              </td>
+              <td>
+                <Menu shadow="md" width={200}>
+                  <Menu.Target>
+                    <Button>Actions</Button>
+                  </Menu.Target>
+
+                  <Menu.Dropdown>
+                    <Menu.Item
+                      icon={<FontAwesomeIcon icon={faExternalLink} />}
+                      component="a"
+                      href={`/scougi/${s.year}/${s.trim}`}
+                      target="_blank"
+                    >
+                      Open
+                    </Menu.Item>
+                    <Menu.Item color="red" icon={<FontAwesomeIcon icon={faTrash} />} onClick={() => deleteScougi(s.id)}>
+                      Delete
+                    </Menu.Item>
+                  </Menu.Dropdown>
+                </Menu>
               </td>
             </tr>
           ))}

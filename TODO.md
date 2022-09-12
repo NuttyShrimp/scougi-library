@@ -14,5 +14,6 @@
   - [x] Year is auto-generated & available on the 1st of june
   - [x] Trim has autocomplete with existing options in DB
   - [x] Ability to hide the entry in the bookshelf, This allows the site to be used for eg. menu of het etentje
-  - [ ] Add delete/replace button to published scougis
+  - [x] Add delete button for published scougis
+  - [ ] Add replace button for published scougis
 
