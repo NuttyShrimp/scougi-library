@@ -4,6 +4,7 @@ export const useStyles = createStyles(() => ({
   wrapper: {
     "& .stf__parent": {
       margin: `0 auto`,
+      overflow: "hidden",
     },
   },
 }));

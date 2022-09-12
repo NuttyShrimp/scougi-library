@@ -22,7 +22,16 @@ function MyApp({ Component, pageProps: { session, ...pageProps } }: AppProps) {
           <ModalsProvider>
             <NotificationsProvider>
               <PageContextProvider>
-                <AppShell footer={<Footer />} navbar={<AdminNavbar />}>
+                <AppShell
+                  footer={<Footer />}
+                  navbar={<AdminNavbar />}
+                  styles={() => ({
+                    main: {
+                      height: "min-content",
+                      minHeight: "unset",
+                    },
+                  })}
+                >
                   <RouteGuard>
                     <Component {...pageProps} />
                   </RouteGuard>

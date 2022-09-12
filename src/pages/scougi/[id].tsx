@@ -24,7 +24,7 @@ declare interface ScougiProps {
 const ScougiPage = forwardRef<any, { pageNumber: number; currentPage: number }>(({ pageNumber, currentPage }, ref) => {
   const [pagePDF, setPagePDF] = useState<Uint8Array>();
   const pageCtx = useContext(pageContext);
-  const pageWidth = useVhToPixel(60);
+  const pageWidth = useVhToPixel(57);
 
   const loadPage = async () => {
     if (pagePDF) return;
@@ -55,7 +55,7 @@ const ScougiDisplay: NextPage<ScougiProps> = props => {
   const router = useRouter();
   const flipBook = useRef<any>();
   const [page, setPage] = useState(0);
-  const pageWidth = useVhToPixel(60);
+  const pageWidth = useVhToPixel(57);
 
   const { id } = router.query;
 
