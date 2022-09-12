@@ -1,11 +1,10 @@
-import { createContext, FC, PropsWithChildren, useEffect, useRef, useState } from "react";
+import { createContext, FC, PropsWithChildren, useRef, useState } from "react";
 import IndexedDb from "./dbservice";
-import { flushSync } from "react-dom";
 
 interface PageContext {
   pages: Map<number, Uint8Array>;
   id: number;
-  getPage: (pageNum: number) => Promise<Uint8Array>;
+  getPage: (pageNum: number, IdOverride?: number) => Promise<Uint8Array>;
   openScougi: (id: number, updatedAt: string, pageCount: number) => void;
 }
 
@@ -23,13 +22,18 @@ export const PageContextProvider: FC<PropsWithChildren<{}>> = ({ children }) => 
   const [pages, setPages] = useState<Map<number, Uint8Array>>(new Map());
   const [id, setId] = useState(0);
 
-  const getPage = async (pageNum: number) => {
-    if (pages.has(pageNum)) {
+  const getPage = async (pageNum: number, scougiIdOverride?: number) => {
+    if (pages.has(pageNum) && !scougiIdOverride) {
       return pages.get(pageNum);
     }
-    const pageRes = await fetch(`/api/scougi/page?id=${id}&page=${pageNum}`, {
+    if (scougiIdOverride && scougiIdOverride !== id) {
+      const page = await idb.current?.getValue("pages", `${scougiIdOverride}-${pageNum}`);
+      if (page) return page;
+    }
+    const pageRes = await fetch(`/api/scougi/page?id=${scougiIdOverride ?? id}&page=${pageNum}`, {
       method: "GET",
     }).then(res => res.json());
+    if (scougiIdOverride && scougiIdOverride !== id) return pageRes.page;
     setPages(pages => {
       pages.set(pageNum, pageRes.page);
       return pages;

@@ -2,52 +2,34 @@ import { Divider, LoadingOverlay, Title } from "@mantine/core";
 import { GetServerSideProps, NextPage } from "next";
 import React, { forwardRef, useContext, useEffect, useRef, useState } from "react";
 import prisma from "../../../lib/prisma";
-import { pdfjs, Document, Page } from "react-pdf";
-// @ts-ignore
-import pdfjsWorker from "pdfjs-dist/build/pdf.worker.entry";
 import HTMLFlipBook from "react-pageflip";
 import { useStyles } from "../../../styles/scougi.styles";
 import { TrimesterNames } from "../../../enums/trimesterNames";
 import { makeSerializable } from "../../../lib/util";
 import "react-pdf/dist/esm/Page/AnnotationLayer.css";
 import { pageContext } from "../../../lib/pageContext";
-import { useRouter } from "next/router";
-import { LoadPage } from "../../../components/LoadPage";
 import { useVhToPixel } from "../../../hooks/useVhToPixel";
 import Head from "next/head";
-
-pdfjs.GlobalWorkerOptions.workerSrc = pdfjsWorker;
+import { PdfPage } from "../../../components/PdfPage";
 
 declare interface ScougiProps {
   scougi: Omit<DB.Scougi, "hidden">;
 }
 
 const ScougiPage = forwardRef<any, { pageNumber: number; currentPage: number }>(({ pageNumber, currentPage }, ref) => {
-  const [pagePDF, setPagePDF] = useState<Uint8Array>();
-  const [rendered, setRendered] = useState(false);
-  const pageCtx = useContext(pageContext);
-  const pageWidth = useVhToPixel(57);
-
-  const loadPage = async () => {
-    if (pagePDF) return;
-    setPagePDF(await pageCtx.getPage(pageNumber));
-  };
+  const { classes } = useStyles();
+  const [shouldRender, setShouldRender] = useState(false);
 
   useEffect(() => {
-    if (
+    setShouldRender(
       (currentPage <= pageNumber && currentPage + 5 >= pageNumber) ||
-      (currentPage >= pageNumber && currentPage - 5 <= pageNumber)
-    ) {
-      loadPage();
-    }
-  }, [pageNumber, currentPage]);
+        (currentPage >= pageNumber && currentPage - 5 <= pageNumber)
+    );
+  }, [currentPage, pageNumber]);
 
   return (
-    <div ref={ref}>
-      {!rendered && <LoadPage />}
-      <Document file={pagePDF}>
-        <Page pageIndex={0} width={pageWidth} height={pageWidth * 1.414} onRenderSuccess={() => setRendered(true)} />
-      </Document>
+    <div ref={ref} className={classes.page}>
+      {shouldRender && <PdfPage page={pageNumber} shouldLoad={shouldRender} height={57} />}
     </div>
   );
 });
