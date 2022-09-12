@@ -14,8 +14,8 @@ declare interface UserListProps {
 
 // TODO: Remove duplicated code shared with approved user list
 
-const UserEntry: FC<{ user: DB.User }> = ( { user } ) => {
-  const confirmModal = () => openConfirmModal( {
+const UserEntry: FC<{ user: DB.User }> = ({ user }) => {
+  const confirmModal = () => openConfirmModal({
     title: `Confirm approval of ${ user.name }`,
     children: (
       <Text size="sm">
@@ -25,16 +25,16 @@ const UserEntry: FC<{ user: DB.User }> = ( { user } ) => {
     labels: { confirm: "Confirm", cancel: "Cancel" },
     onConfirm: async () => {
       try {
-        const res = await fetch( "/api/users/approve", {
+        const res = await fetch("/api/users/approve", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify( {
+          body: JSON.stringify({
             id: user.id,
-          } ),
-        } );
-        showNotification( res.ok ? {
+          }),
+        });
+        showNotification(res.ok ? {
           title: `${ user.name } successfully approved`,
           message: "You can revoke the user via the users list",
           color: "green",
@@ -44,21 +44,21 @@ const UserEntry: FC<{ user: DB.User }> = ( { user } ) => {
           message: "Try again later, The issue is probably already reported",
           color: "red",
           icon: <FontAwesomeIcon icon={ faXmarkCircle } />,
-        } );
-      } catch ( e ) {
-        showNotification( {
+        });
+      } catch (e) {
+        showNotification({
           title: `Failed to approve ${ user.name } access`,
           message: "Try again later, The issue is probably already reported",
           color: "red",
           icon: <FontAwesomeIcon icon={ faXmarkCircle } />,
-        } );
-        console.error( e );
+        });
+        console.error(e);
       }
     },
-  } );
+  });
   return (
     <tr key={ user.id }>
-      <td>{ user.id.slice( 0, 7 ) }{ user.id.slice( 7 ).replaceAll( /./g, "*" ) }</td>
+      <td>{ user.id.slice(0, 7) }{ user.id.slice(7).replaceAll(/./g, "*") }</td>
       <td>{ user.name }</td>
       <td>{ user.email }</td>
       <td><Button color={ "green" } onClick={ confirmModal }>Approve</Button></td>
@@ -66,7 +66,7 @@ const UserEntry: FC<{ user: DB.User }> = ( { user } ) => {
   );
 };
 
-const NotApprovedUserList: NextPage<UserListProps> = ( { users } ) => {
+const NotApprovedUserList: NextPage<UserListProps> = ({ users }) => {
   return (
     <Container>
       <Table>
@@ -79,7 +79,7 @@ const NotApprovedUserList: NextPage<UserListProps> = ( { users } ) => {
         </tr>
         </thead>
         <tbody>
-        { users.map( u => <UserEntry user={ u } key={ u.id } /> ) }
+        { users.map(u => <UserEntry user={ u } key={ u.id } />) }
         </tbody>
       </Table>
     </Container>
@@ -87,17 +87,17 @@ const NotApprovedUserList: NextPage<UserListProps> = ( { users } ) => {
 };
 
 export const getServerSideProps: GetServerSideProps = async () => {
-  const users = await prisma.user.findMany( {
+  const users = await prisma.user.findMany({
     where: { approved: false },
     select: {
       id: true,
       name: true,
       email: true,
     },
-  } );
+  });
   return {
     props: {
-      users: makeSerializable( users ),
+      users: makeSerializable(users),
     },
   };
 };
