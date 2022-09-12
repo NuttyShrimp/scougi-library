@@ -1,12 +1,13 @@
 - [x] OAuth via dropbox
 - [x] Dropbox chooser
-- [ ] Available scougi's are shown as book shelf (with first page displayed)
+- [x] Available scougi's are shown as book shelf (with first page displayed)
 - [x] Add caching of pages with IndexedDB (based on lastUpdated in scougi Entry of pScale)
 - [ ] Fix mobile view
 - [ ] Lock system on pageCtx, Prevent double fetches
 - [ ] Add logging to API endpoint
 - [ ] Add sentry
 - [x] Move scougi routing splitted to year and trim
+- [ ] Define background photo from admin panel
 
 # Admin
 - [x] List with approved users

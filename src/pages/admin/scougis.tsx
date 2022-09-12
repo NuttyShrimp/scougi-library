@@ -160,6 +160,11 @@ const Scougis: NextPage<ScougiAdminProps> = props => {
     }
   };
 
+  const handleYearChange = (year: string) => {
+    setSelectedYear(year);
+    setSelectedTrim(props.years[year]?.at(0) ?? 0);
+  };
+
   return (
     <Container>
       <Title order={3}>Upload new scougi</Title>
@@ -167,7 +172,7 @@ const Scougis: NextPage<ScougiAdminProps> = props => {
         <Select
           label="Schooljaar"
           value={selectedYear}
-          onChange={v => setSelectedYear(v ?? props.currentYear)}
+          onChange={v => handleYearChange(v ?? props.currentYear)}
           data={Object.keys(props.years)}
           searchable
           creatable
@@ -189,10 +194,10 @@ const Scougis: NextPage<ScougiAdminProps> = props => {
             setSelectedTrim(Number(v));
           }}
           disabled={props.years[selectedYear].length === 0 || isUploading}
-          data={TrimesterNames.filter((_, i) => props.years[selectedYear].includes(i)).map((t, i) => ({
+          data={TrimesterNames.map((t, i) => ({
             value: String(i),
             label: t,
-          }))}
+          })).filter((_, i) => props.years[selectedYear].includes(i))}
         />
         <Group>
           <DropboxChooser
