@@ -14,6 +14,7 @@ import { pageContext } from "../../lib/pageContext";
 import { useRouter } from "next/router";
 import { LoadPage } from "../../components/LoadPage";
 import { useVhToPixel } from "../../hooks/useVhToPixel";
+import Head from "next/head";
 
 pdfjs.GlobalWorkerOptions.workerSrc = pdfjsWorker;
 
@@ -81,6 +82,11 @@ const ScougiDisplay: NextPage<ScougiProps> = props => {
 
   return (
     <div className={classes.wrapper}>
+      <Head>
+        <title>
+          {TrimesterNames[props.scougi.trim ?? 0]} - {props.scougi.year} - Scouts en Gidsen Asse
+        </title>
+      </Head>
       <Title order={4}>
         Scougi - {props.scougi.year} - {TrimesterNames[props.scougi.trim ?? 0]}
       </Title>
