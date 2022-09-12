@@ -16,6 +16,8 @@ declare interface ScougiProps {
   scougi: Omit<DB.Scougi, "hidden">;
 }
 
+const PAGE_HEIGHT = 65;
+
 const ScougiPage = forwardRef<any, { pageNumber: number; currentPage: number }>(({ pageNumber, currentPage }, ref) => {
   const { classes } = useStyles();
   const [shouldRender, setShouldRender] = useState(false);
@@ -29,7 +31,7 @@ const ScougiPage = forwardRef<any, { pageNumber: number; currentPage: number }>(
 
   return (
     <div ref={ref} className={classes.page}>
-      {shouldRender && <PdfPage page={pageNumber} shouldLoad={shouldRender} height={57} />}
+      {shouldRender && <PdfPage page={pageNumber} shouldLoad={shouldRender} height={PAGE_HEIGHT} />}
     </div>
   );
 });
@@ -39,7 +41,7 @@ const ScougiDisplay: NextPage<ScougiProps> = props => {
   const pageCtx = useContext(pageContext);
   const flipBook = useRef<any>();
   const [page, setPage] = useState(0);
-  const pageWidth = useVhToPixel(57);
+  const pageWidth = useVhToPixel(PAGE_HEIGHT);
 
   const onPage = (e: any) => {
     setPage(e.data);

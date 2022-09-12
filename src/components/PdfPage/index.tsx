@@ -12,7 +12,6 @@ declare interface PdfPageProps {
   page: number;
   shouldLoad: boolean;
   overrideId?: number;
-  useOverride?: boolean;
   height: number;
 }
 
@@ -34,18 +33,20 @@ export const PdfPage: FC<PdfPageProps> = ({ page, overrideId, shouldLoad, height
   }, [shouldLoad]);
   return (
     <>
-      {!rendered && <LoadPage />}
-      <Document file={pagePDF} noData={""} loading={""} error={""}>
-        <Page
-          pageIndex={0}
-          width={pageWidth}
-          height={pageWidth * 1.414}
-          onRenderSuccess={() => setRendered(true)}
-          noData={""}
-          loading={""}
-          error={""}
-        />
-      </Document>
+      {!rendered && <LoadPage width={pageWidth} />}
+      <div style={{ display: rendered ? "block" : "none" }}>
+        <Document file={pagePDF} noData={""} loading={""} error={""}>
+          <Page
+            pageIndex={0}
+            width={pageWidth}
+            height={pageWidth * 1.414}
+            onRenderSuccess={() => setRendered(true)}
+            noData={""}
+            loading={""}
+            error={""}
+          />
+        </Document>
+      </div>
     </>
   );
 };

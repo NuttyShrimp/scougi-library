@@ -23,7 +23,6 @@ function MyApp({ Component, pageProps: { session, ...pageProps } }: AppProps) {
             <NotificationsProvider>
               <PageContextProvider>
                 <AppShell
-                  footer={<Footer />}
                   navbar={<AdminNavbar />}
                   styles={() => ({
                     main: {
@@ -32,9 +31,12 @@ function MyApp({ Component, pageProps: { session, ...pageProps } }: AppProps) {
                     },
                   })}
                 >
-                  <RouteGuard>
-                    <Component {...pageProps} />
-                  </RouteGuard>
+                  <div style={{ minHeight: "100vh" }}>
+                    <RouteGuard>
+                      <Component {...pageProps} />
+                    </RouteGuard>
+                  </div>
+                  <Footer />
                 </AppShell>
               </PageContextProvider>
             </NotificationsProvider>

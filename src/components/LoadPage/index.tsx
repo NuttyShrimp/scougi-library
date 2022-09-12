@@ -1,14 +1,9 @@
 import { Loader, Stack } from "@mantine/core";
-import { useVhToPixel } from "../../hooks/useVhToPixel";
+import { FC } from "react";
 
-export const LoadPage = () => {
-  const pageWidth = useVhToPixel(60);
+export const LoadPage: FC<{ width: number }> = ({ width }) => {
   return (
-    <Stack
-      align={"center"}
-      justify={"center"}
-      style={{ width: pageWidth, height: pageWidth * 1.414, background: "white" }}
-    >
+    <Stack align={"center"} justify={"center"} style={{ width: width, height: width * 1.414, background: "white" }}>
       <Loader size={"xl"} color={"scoutsBlue"} />
     </Stack>
   );
