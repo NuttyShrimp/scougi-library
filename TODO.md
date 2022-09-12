@@ -5,7 +5,7 @@
 - [ ] Fix mobile view
 - [ ] Lock system on pageCtx, Prevent double fetches
 - [ ] Add logging to API endpoint
-- [ ] Add sentry
+- [x] Add sentry
 - [x] Move scougi routing splitted to year and trim
 - [ ] Define background photo from admin panel
 
