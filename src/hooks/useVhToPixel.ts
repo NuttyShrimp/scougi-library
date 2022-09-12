@@ -17,7 +17,7 @@ export const useVhToPixel = (vh: number): number => {
     return () => {
       window.removeEventListener("resize", handleResize);
     };
-  }, [handleResize]);
+  }, [handleResize, vh]);
 
   return calcPx;
 };

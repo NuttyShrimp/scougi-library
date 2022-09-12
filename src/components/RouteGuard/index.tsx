@@ -5,7 +5,7 @@ import { Center } from "@mantine/core";
 
 export const RouteGuard: FC<PropsWithChildren<{}>> = ({ children }) => {
   const { data: session, status } = useSession();
-  const loading = useMemo(() => status === "loading", [ status ]);
+  const loading = useMemo(() => status === "loading", [status]);
   const hasUser = !!session?.user;
   const router = useRouter();
 
@@ -17,14 +17,14 @@ export const RouteGuard: FC<PropsWithChildren<{}>> = ({ children }) => {
     if (!loading && !session?.user?.approved && !router.pathname.startsWith("/admin/notapproved")) {
       router.push("/admin/notapproved");
     }
-  }, [ loading, hasUser, session ]);
+  }, [loading, hasUser, session, router]);
 
   if (!router.pathname.startsWith("/admin") || router.pathname === "/admin/notapproved") {
-    return <>{ children }</>;
+    return <>{children}</>;
   }
 
   if (loading || !hasUser) {
-    return (<Center>Waiting for session...</Center>);
+    return <Center>Waiting for session...</Center>;
   }
-  return (<>{ children }</>);
+  return <>{children}</>;
 };

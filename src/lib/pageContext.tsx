@@ -13,8 +13,8 @@ interface PageContext {
 export const pageContext = createContext<PageContext>({
   pages: new Map(),
   id: 0,
-  getPage: async pageNum => new Uint8Array(),
-  openScougi: id => null,
+  getPage: async () => new Uint8Array(),
+  openScougi: () => null,
 });
 
 export const PageContextProvider: FC<PropsWithChildren<{}>> = ({ children }) => {

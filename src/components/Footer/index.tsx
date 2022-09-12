@@ -1,6 +1,6 @@
-import { Anchor, Center, Container, Footer as MFooter, Group, Stack, Text } from "@mantine/core";
+import { Anchor, Center, Footer as MFooter, Group, Stack, Text } from "@mantine/core";
 import { signIn, useSession } from "next-auth/react";
-import React, { FC, useEffect, useState } from "react";
+import React, { FC } from "react";
 
 export const Footer: FC<{}> = () => {
   const { data: session } = useSession();

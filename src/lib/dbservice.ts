@@ -52,7 +52,7 @@ class IndexedDb {
     const tx = this.db.transaction(tableName, "readwrite");
     const store = tx.objectStore(tableName);
     for (const value of values) {
-      const result = await store.put(value);
+      await store.put(value);
     }
     return this.getAllValue(tableName);
   }

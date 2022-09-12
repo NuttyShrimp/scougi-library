@@ -8,7 +8,7 @@ import {
   faXmarkCircle,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { Button, Container, Divider, Group, Select, Title, Text, Table, Anchor, Checkbox, Menu } from "@mantine/core";
+import { Button, Container, Divider, Group, Select, Title, Text, Table, Checkbox, Menu } from "@mantine/core";
 import { GetServerSideProps, NextPage } from "next";
 import prisma from "../../lib/prisma";
 import React, { useState } from "react";

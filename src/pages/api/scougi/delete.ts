@@ -2,7 +2,6 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { unstable_getServerSession } from "next-auth";
 import { authOptions } from "../auth/[...nextauth]";
 import prisma from "../../../lib/prisma";
-import { PDFDocument } from "pdf-lib";
 
 export default async function handle(req: NextApiRequest, res: NextApiResponse) {
   const { method } = req;
