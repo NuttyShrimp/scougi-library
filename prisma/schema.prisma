@@ -69,6 +69,7 @@ model Scougi {
   trim       Int
   pages      Int
   hidden     Boolean      @default(false)
+  updatedAt  DateTime     @updatedAt @default(now())
   ScougiPage ScougiPage[]
 
   @@unique([year, trim])

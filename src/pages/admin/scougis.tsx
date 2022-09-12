@@ -24,7 +24,7 @@ declare interface ScougiAdminProps {
   // Record of years and trimester in set year where no scougi is uploaded
   years: Record<string, number[]>;
   currentYear: string;
-  published: Omit<DB.Scougi, "pages">[];
+  published: Omit<DB.Scougi, "pages" | "updatedAt">[];
 }
 
 const Scougis: NextPage<ScougiAdminProps> = props => {

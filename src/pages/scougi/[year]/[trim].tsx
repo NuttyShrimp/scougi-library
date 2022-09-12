@@ -1,4 +1,4 @@
-import { Divider, Title } from "@mantine/core";
+import { Divider, LoadingOverlay, Title } from "@mantine/core";
 import { GetServerSideProps, NextPage } from "next";
 import React, { forwardRef, useContext, useEffect, useRef, useState } from "react";
 import prisma from "../../../lib/prisma";
@@ -24,6 +24,7 @@ declare interface ScougiProps {
 
 const ScougiPage = forwardRef<any, { pageNumber: number; currentPage: number }>(({ pageNumber, currentPage }, ref) => {
   const [pagePDF, setPagePDF] = useState<Uint8Array>();
+  const [rendered, setRendered] = useState(false);
   const pageCtx = useContext(pageContext);
   const pageWidth = useVhToPixel(57);
 
@@ -44,7 +45,16 @@ const ScougiPage = forwardRef<any, { pageNumber: number; currentPage: number }>(
   return (
     <div ref={ref}>
       <Document file={pagePDF} noData={<LoadPage />} loading={<LoadPage />} error={<LoadPage />}>
-        <Page pageIndex={0} width={pageWidth} height={pageWidth * 1.414} />
+        {!rendered && <LoadPage />}
+        <Page
+          pageIndex={0}
+          width={pageWidth}
+          height={pageWidth * 1.414}
+          onRenderSuccess={() => setRendered(true)}
+          noData={<LoadPage />}
+          loading={<LoadPage />}
+          error={<LoadPage />}
+        />
       </Document>
     </div>
   );
@@ -53,7 +63,6 @@ const ScougiPage = forwardRef<any, { pageNumber: number; currentPage: number }>(
 const ScougiDisplay: NextPage<ScougiProps> = props => {
   const { classes } = useStyles();
   const pageCtx = useContext(pageContext);
-  const router = useRouter();
   const flipBook = useRef<any>();
   const [page, setPage] = useState(0);
   const pageWidth = useVhToPixel(57);
@@ -71,11 +80,7 @@ const ScougiDisplay: NextPage<ScougiProps> = props => {
   };
 
   useEffect(() => {
-    if (isNaN(Number(props.scougi.id))) {
-      router.push("/");
-      return;
-    }
-    pageCtx.openScougi(Number(props.scougi.id));
+    pageCtx.openScougi(props.scougi.id, props.scougi.updatedAt, props.scougi.pages);
   }, []);
 
   return (
@@ -104,7 +109,11 @@ const ScougiDisplay: NextPage<ScougiProps> = props => {
   );
 };
 
-export const getServerSideProps: GetServerSideProps<ScougiProps> = async ({ params }) => {
+export const getServerSideProps: GetServerSideProps<{
+  scougi: Omit<DB.Scougi, "hidden" | "updatedAt"> & {
+    updatedAt: Date;
+  };
+}> = async ({ params }) => {
   if (!params?.trim || !params?.year || Array.isArray(params.year) || isNaN(Number(params.trim)))
     return {
       props: {
@@ -117,6 +126,7 @@ export const getServerSideProps: GetServerSideProps<ScougiProps> = async ({ para
       year: true,
       trim: true,
       pages: true,
+      updatedAt: true,
       id: true,
     },
     where: {
