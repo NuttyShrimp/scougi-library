@@ -44,17 +44,9 @@ const ScougiPage = forwardRef<any, { pageNumber: number; currentPage: number }>(
 
   return (
     <div ref={ref}>
-      <Document file={pagePDF} noData={<LoadPage />} loading={<LoadPage />} error={<LoadPage />}>
-        {!rendered && <LoadPage />}
-        <Page
-          pageIndex={0}
-          width={pageWidth}
-          height={pageWidth * 1.414}
-          onRenderSuccess={() => setRendered(true)}
-          noData={<LoadPage />}
-          loading={<LoadPage />}
-          error={<LoadPage />}
-        />
+      {!rendered && <LoadPage />}
+      <Document file={pagePDF}>
+        <Page pageIndex={0} width={pageWidth} height={pageWidth * 1.414} onRenderSuccess={() => setRendered(true)} />
       </Document>
     </div>
   );
