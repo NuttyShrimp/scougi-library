@@ -2,32 +2,32 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
   previewFeatures = ["referentialIntegrity"]
 }
 
 datasource db {
-  provider = "mysql"
-  url      = env("DATABASE_URL")
+  provider             = "mysql"
+  url                  = env("DATABASE_URL")
   referentialIntegrity = "prisma"
 }
 
 // region Next-auth
 model Account {
-  id                 String   @id @default(cuid())
-  uid                String
-  account_id         String   @unique
-  userId             String
-  type               String
-  provider           String
-  providerAccountId  String
-  refresh_token      String?  @db.Text
-  access_token       String?  @db.Text
-  expires_at         Int?
-  token_type         String?
-  scope              String?
-  id_token           String?  @db.Text
-  session_state      String?
+  id                String  @id @default(cuid())
+  uid               String
+  account_id        String  @unique
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -60,13 +60,25 @@ model VerificationToken {
 
   @@unique([identifier, token])
 }
+
 // endregion
 
 model Scougi {
-  id Int @id @default(autoincrement())
-  year String
-  trim Int
-  url String
-  
+  id         Int          @id @default(autoincrement())
+  year       String
+  trim       Int
+  pages      Int
+  hidden     Boolean      @default(false)
+  ScougiPage ScougiPage[]
+
   @@unique([year, trim])
+}
+
+model ScougiPage {
+  number Int
+  id     Int
+  data   Bytes
+  scougi Scougi @relation(fields: [id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@id([number, id])
 }

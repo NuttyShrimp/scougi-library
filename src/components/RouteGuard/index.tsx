@@ -2,7 +2,6 @@ import React, { FC, PropsWithChildren, useEffect, useMemo } from "react";
 import { useRouter } from "next/router";
 import { useSession } from "next-auth/react";
 import { Center } from "@mantine/core";
-import { Layout } from "../Layout";
 
 export const RouteGuard: FC<PropsWithChildren<{}>> = ( { children } ) => {
   const { data: session, status } = useSession();
@@ -27,5 +26,5 @@ export const RouteGuard: FC<PropsWithChildren<{}>> = ( { children } ) => {
   if ( loading || !hasUser ) {
     return ( <Center>Waiting for session...</Center> );
   }
-  return ( <Layout>{ children }</Layout> );
+  return ( <>{ children }</> );
 };

@@ -89,6 +89,10 @@ export const AdminNavbar: FC = () => {
     setActive(entry?.label)
   }, [router.pathname])
 
+  if (!router.pathname.startsWith('/admin') || router.pathname === '/admin/notapproved') {
+    return null;
+  }
+
   const linkElems = links.map(l => (
     <div
       className={cx(classes.link, { [classes.linkActive]: l.label === active })}

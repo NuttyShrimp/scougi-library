@@ -25,6 +25,7 @@
     "spaced-comment": "off",
     "no-async-promise-executor": "off",
     "no-mixed-spaces-and-tabs": "warn",
+    "space-in-parens": ["error", "never"],
     "@typescript-eslint/no-explicit-any": "off",
     "@typescript-eslint/ban-ts-comment": "off",
     "@typescript-eslint/ban-types": "off"

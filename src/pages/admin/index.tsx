@@ -9,7 +9,6 @@ const Admin: NextPage = () => {
   return (
     <div>
       <Title order={2}>Admin</Title>
-      <Text>{JSON.stringify(session?.user)}</Text>
     </div>
   )
 }

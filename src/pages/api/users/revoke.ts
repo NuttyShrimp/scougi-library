@@ -1,11 +1,13 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { getSession } from "next-auth/react";
 import { prisma } from '../../../lib/prisma';
+import { unstable_getServerSession } from "next-auth";
+import { authOptions } from "../auth/[...nextauth]";
 
 export default async function handle(req: NextApiRequest, res: NextApiResponse) {
   const { method } = req;
   const { id } = req.body;
-  const session = await getSession({ req })
+  const session = await unstable_getServerSession(req, res, authOptions)
 
   if (method !== 'POST') {
     res.setHeader('Allow', ['POST'])
