@@ -1,25 +1,25 @@
 import { Divider, Title } from "@mantine/core";
 import { GetServerSideProps, NextPage } from "next";
 import React, { forwardRef, useContext, useEffect, useRef, useState } from "react";
-import prisma from "../../lib/prisma";
+import prisma from "../../../lib/prisma";
 import { pdfjs, Document, Page } from "react-pdf";
 // @ts-ignore
 import pdfjsWorker from "pdfjs-dist/build/pdf.worker.entry";
 import HTMLFlipBook from "react-pageflip";
-import { useStyles } from "../../styles/scougi.styles";
-import { TrimesterNames } from "../../enums/trimesterNames";
-import { makeSerializable } from "../../lib/util";
+import { useStyles } from "../../../styles/scougi.styles";
+import { TrimesterNames } from "../../../enums/trimesterNames";
+import { makeSerializable } from "../../../lib/util";
 import "react-pdf/dist/esm/Page/AnnotationLayer.css";
-import { pageContext } from "../../lib/pageContext";
+import { pageContext } from "../../../lib/pageContext";
 import { useRouter } from "next/router";
-import { LoadPage } from "../../components/LoadPage";
-import { useVhToPixel } from "../../hooks/useVhToPixel";
+import { LoadPage } from "../../../components/LoadPage";
+import { useVhToPixel } from "../../../hooks/useVhToPixel";
 import Head from "next/head";
 
 pdfjs.GlobalWorkerOptions.workerSrc = pdfjsWorker;
 
 declare interface ScougiProps {
-  scougi: Omit<DB.Scougi, "id" | "hidden">;
+  scougi: Omit<DB.Scougi, "hidden">;
 }
 
 const ScougiPage = forwardRef<any, { pageNumber: number; currentPage: number }>(({ pageNumber, currentPage }, ref) => {
@@ -58,8 +58,6 @@ const ScougiDisplay: NextPage<ScougiProps> = props => {
   const [page, setPage] = useState(0);
   const pageWidth = useVhToPixel(57);
 
-  const { id } = router.query;
-
   const onPage = (e: any) => {
     setPage(e.data);
   };
@@ -73,11 +71,11 @@ const ScougiDisplay: NextPage<ScougiProps> = props => {
   };
 
   useEffect(() => {
-    if (isNaN(Number(id))) {
+    if (isNaN(Number(props.scougi.id))) {
       router.push("/");
       return;
     }
-    pageCtx.openScougi(Number(router.query.id));
+    pageCtx.openScougi(Number(props.scougi.id));
   }, []);
 
   return (
@@ -107,7 +105,7 @@ const ScougiDisplay: NextPage<ScougiProps> = props => {
 };
 
 export const getServerSideProps: GetServerSideProps<ScougiProps> = async ({ params }) => {
-  if (!params?.id || isNaN(Number(params.id)))
+  if (!params?.trim || !params?.year || Array.isArray(params.year) || isNaN(Number(params.trim)))
     return {
       props: {
         scougi: { year: "", trim: "", pages: 0 },
@@ -119,9 +117,11 @@ export const getServerSideProps: GetServerSideProps<ScougiProps> = async ({ para
       year: true,
       trim: true,
       pages: true,
+      id: true,
     },
     where: {
-      id: Number(params.id),
+      year: params.year,
+      trim: Number(params.trim),
     },
   });
   return {
