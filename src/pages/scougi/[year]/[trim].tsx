@@ -24,8 +24,8 @@ const ScougiPage = forwardRef<any, { pageNumber: number; currentPage: number }>(
 
   useEffect(() => {
     setShouldRender(
-      (currentPage <= pageNumber && currentPage + 5 >= pageNumber) ||
-        (currentPage >= pageNumber && currentPage - 5 <= pageNumber)
+      (currentPage <= pageNumber && currentPage + 3 >= pageNumber) ||
+        (currentPage >= pageNumber && currentPage - 3 <= pageNumber)
     );
   }, [currentPage, pageNumber]);
 
