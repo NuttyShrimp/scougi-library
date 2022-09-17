@@ -15,4 +15,14 @@ export const useStyles = createStyles(() => ({
   page: {
     background: "white",
   },
+  bookWrapper: {
+    display: "flex",
+    justifyContent: "center",
+  },
+  book: {
+    width: "60vw",
+  },
+  mobileBook: {
+    width: "90vw",
+  },
 }));

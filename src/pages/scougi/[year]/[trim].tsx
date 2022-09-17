@@ -8,40 +8,41 @@ import { TrimesterNames } from "../../../enums/trimesterNames";
 import { makeSerializable } from "../../../lib/util";
 import "react-pdf/dist/esm/Page/AnnotationLayer.css";
 import { pageContext } from "../../../lib/pageContext";
-import { useVhToPixel } from "../../../hooks/useVhToPixel";
 import Head from "next/head";
 import { PdfPage } from "../../../components/PdfPage";
+import useMeasure from "react-use-measure";
 
 declare interface ScougiProps {
   scougi: Omit<DB.Scougi, "hidden">;
 }
 
-const PAGE_HEIGHT = 65;
+const ScougiPage = forwardRef<any, { pageNumber: number; currentPage: number; height: number }>(
+  ({ pageNumber, currentPage, height }, ref) => {
+    const { classes } = useStyles();
+    const [shouldRender, setShouldRender] = useState(false);
 
-const ScougiPage = forwardRef<any, { pageNumber: number; currentPage: number }>(({ pageNumber, currentPage }, ref) => {
-  const { classes } = useStyles();
-  const [shouldRender, setShouldRender] = useState(false);
+    useEffect(() => {
+      setShouldRender(
+        (currentPage <= pageNumber && currentPage + 3 >= pageNumber) ||
+          (currentPage >= pageNumber && currentPage - 3 <= pageNumber)
+      );
+    }, [currentPage, pageNumber]);
 
-  useEffect(() => {
-    setShouldRender(
-      (currentPage <= pageNumber && currentPage + 3 >= pageNumber) ||
-        (currentPage >= pageNumber && currentPage - 3 <= pageNumber)
+    return (
+      <div ref={ref} className={classes.page}>
+        {shouldRender && <PdfPage page={pageNumber} shouldLoad={shouldRender} height={height} />}
+      </div>
     );
-  }, [currentPage, pageNumber]);
-
-  return (
-    <div ref={ref} className={classes.page}>
-      {shouldRender && <PdfPage page={pageNumber} shouldLoad={shouldRender} height={PAGE_HEIGHT} />}
-    </div>
-  );
-});
+  }
+);
 
 const ScougiDisplay: NextPage<ScougiProps> = props => {
   const { classes } = useStyles();
   const pageCtx = useContext(pageContext);
   const flipBook = useRef<any>();
   const [page, setPage] = useState(0);
-  const pageWidth = useVhToPixel(PAGE_HEIGHT);
+  const [isPortrait, setIsPortrait] = useState(false);
+  const [ref, { height }] = useMeasure();
 
   const onPage = (e: any) => {
     setPage(e.data);
@@ -50,7 +51,7 @@ const ScougiDisplay: NextPage<ScougiProps> = props => {
   const getPages = () => {
     const pages = [];
     for (let i = 0; i < props.scougi.pages; i++) {
-      pages.push(<ScougiPage key={`page-${i}`} pageNumber={i} currentPage={page} />);
+      pages.push(<ScougiPage key={`page-${i}`} pageNumber={i} currentPage={page} height={height} />);
     }
     return pages;
   };
@@ -58,6 +59,12 @@ const ScougiDisplay: NextPage<ScougiProps> = props => {
   useEffect(() => {
     pageCtx.openScougi(props.scougi.id, props.scougi.updatedAt, props.scougi.pages);
   }, []);
+
+  useEffect(() => {
+    if (flipBook.current) {
+      setIsPortrait(flipBook.current.pageFlip()?.render?.orientation === "portrait");
+    }
+  }, [flipBook.current]);
 
   return (
     <div className={classes.wrapper}>
@@ -70,17 +77,27 @@ const ScougiDisplay: NextPage<ScougiProps> = props => {
         Scougi - {props.scougi.year} - {TrimesterNames[props.scougi.trim ?? 0]}
       </Title>
       <Divider mb={"md"} />
-      <HTMLFlipBook
-        showCover
-        flippingTime={250}
-        autoSize
-        width={pageWidth}
-        height={pageWidth * 1.414}
-        onFlip={onPage}
-        ref={flipBook}
-      >
-        {getPages()}
-      </HTMLFlipBook>
+      <div className={classes.bookWrapper}>
+        <div className={isPortrait ? classes.mobileBook : classes.book} ref={ref}>
+          <HTMLFlipBook
+            showCover
+            flippingTime={250}
+            width={515}
+            height={733}
+            size={"stretch"}
+            minWidth={280}
+            maxWidth={1000}
+            minHeight={400}
+            maxHeight={1498}
+            onFlip={onPage}
+            ref={flipBook}
+            mobileScrollSupport={false}
+            usePortrait={true}
+          >
+            {getPages()}
+          </HTMLFlipBook>
+        </div>
+      </div>
     </div>
   );
 };
