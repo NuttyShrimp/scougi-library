@@ -1,47 +1,37 @@
-import { Divider, Title, Center } from "@mantine/core";
-import type { GetServerSideProps, NextPage } from "next";
-import prisma from "../lib/prisma";
+import { Divider, Title, Center, Loader } from "@mantine/core";
+import type { NextPage } from "next";
 import { YearShelf } from "../components/YearShelf";
+import { useEffect, useState } from "react";
 
-interface HomeProps {
-  scougis: Record<string, number[]>;
-}
+const Home: NextPage = props => {
+  const [scougis, setScougis] = useState<Record<string, number[]>>({});
 
-const Home: NextPage<HomeProps> = props => {
+  const fetchScougis = async () => {
+    const newScougis = await fetch("/api/scougi", {
+      method: "GET",
+    }).then(res => res.json());
+    setScougis(newScougis);
+  };
+
+  useEffect(() => {
+    fetchScougis();
+  }, []);
+
   return (
     <div>
       <Center>
         <Title order={2}>Scougi - Scouts en Gidsen Asse</Title>
       </Center>
       <Divider my={"xs"} />
-      {Object.keys(props.scougis).map(year => (
-        <YearShelf key={year} year={year} trims={props.scougis[year]} />
-      ))}
+      {Object.keys(scougis).length === 0 ? (
+        <Center>
+          <Loader size={"xl"} />
+        </Center>
+      ) : (
+        Object.keys(scougis).map(year => <YearShelf key={year} year={year} trims={scougis[year]} />)
+      )}
     </div>
   );
-};
-
-export const getServerSideProps: GetServerSideProps<HomeProps> = async () => {
-  const scougis = await prisma.scougi.findMany({
-    select: {
-      id: true,
-      trim: true,
-      year: true,
-    },
-  });
-  const filteredScougis: Record<string, number[]> = {};
-  scougis.forEach(s => {
-    if (!filteredScougis[s.year]) {
-      filteredScougis[s.year] = [];
-    }
-    filteredScougis[s.year][s.trim] = s.id;
-  });
-  return {
-    props: {
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      scougis: filteredScougis,
-    },
-  };
 };
 
 export default Home;
