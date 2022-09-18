@@ -16,15 +16,15 @@ declare interface ScougiProps {
   scougi: Omit<DB.Scougi, "hidden">;
 }
 
-const ScougiPage = forwardRef<any, { pageNumber: number; currentPage: number; height: number }>(
-  ({ pageNumber, currentPage, height }, ref) => {
+const ScougiPage = forwardRef<any, { pageNumber: number; currentPage: number; height: number; preload: number }>(
+  ({ pageNumber, currentPage, height, preload }, ref) => {
     const { classes } = useStyles();
     const [shouldRender, setShouldRender] = useState(false);
 
     useEffect(() => {
       setShouldRender(
-        (currentPage <= pageNumber && currentPage + 3 >= pageNumber) ||
-          (currentPage >= pageNumber && currentPage - 3 <= pageNumber)
+        (currentPage <= pageNumber && currentPage + preload >= pageNumber) ||
+          (currentPage >= pageNumber && currentPage - preload <= pageNumber)
       );
     }, [currentPage, pageNumber]);
 
@@ -51,7 +51,9 @@ const ScougiDisplay: NextPage<ScougiProps> = props => {
   const getPages = () => {
     const pages = [];
     for (let i = 0; i < props.scougi.pages; i++) {
-      pages.push(<ScougiPage key={`page-${i}`} pageNumber={i} currentPage={page} height={height} />);
+      pages.push(
+        <ScougiPage key={`page-${i}`} pageNumber={i} currentPage={page} height={height} preload={isPortrait ? 1 : 3} />
+      );
     }
     return pages;
   };
@@ -93,6 +95,7 @@ const ScougiDisplay: NextPage<ScougiProps> = props => {
             ref={flipBook}
             mobileScrollSupport={false}
             usePortrait={true}
+            swipeDistance={isPortrait ? 15 : 30}
           >
             {getPages()}
           </HTMLFlipBook>
