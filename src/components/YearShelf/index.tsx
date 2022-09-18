@@ -6,9 +6,11 @@ import Link from "next/link";
 import { useSpring, animated } from "@react-spring/web";
 import { useGesture } from "react-use-gesture";
 import styles from "../../styles/shelf.module.scss";
+import { useVhToPixel } from "../../hooks/useVhToPixel";
 
 const ShelfEntry: FC<{ year: string; trim: number; id: number }> = ({ year, trim, id }) => {
   const domTarget = useRef<HTMLDivElement | null>(null);
+  const pageHeight = useVhToPixel(20);
 
   useEffect(() => {
     const preventDefault = (e: Event) => e.preventDefault();
@@ -65,7 +67,7 @@ const ShelfEntry: FC<{ year: string; trim: number; id: number }> = ({ year, trim
             rotateZ,
           }}
         >
-          <PdfPage page={0} shouldLoad height={20} overrideId={id} />
+          <PdfPage page={0} shouldLoad height={pageHeight} overrideId={id} />
         </animated.div>
         <Center>
           <Text size={"md"} weight={"bolder"}>
