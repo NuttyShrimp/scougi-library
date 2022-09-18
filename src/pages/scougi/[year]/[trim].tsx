@@ -1,4 +1,4 @@
-import { Divider, Title } from "@mantine/core";
+import { Divider, Title, Center } from "@mantine/core";
 import { GetServerSideProps, NextPage } from "next";
 import React, { forwardRef, useContext, useEffect, useRef, useState } from "react";
 import prisma from "../../../lib/prisma";
@@ -11,6 +11,8 @@ import { pageContext } from "../../../lib/pageContext";
 import Head from "next/head";
 import { PdfPage } from "../../../components/PdfPage";
 import useMeasure from "react-use-measure";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faChevronLeft, faChevronRight } from "@fortawesome/free-solid-svg-icons";
 
 declare interface ScougiProps {
   scougi: Omit<DB.Scougi, "hidden">;
@@ -80,6 +82,9 @@ const ScougiDisplay: NextPage<ScougiProps> = props => {
       </Title>
       <Divider mb={"md"} />
       <div className={classes.bookWrapper}>
+        <div className={[classes.btn, "left"].join(" ")} onClick={() => flipBook.current.pageFlip().flipPrev()}>
+          <FontAwesomeIcon icon={faChevronLeft} />
+        </div>
         <div className={isPortrait ? classes.mobileBook : classes.book} ref={ref}>
           <HTMLFlipBook
             showCover
@@ -100,7 +105,15 @@ const ScougiDisplay: NextPage<ScougiProps> = props => {
             {getPages()}
           </HTMLFlipBook>
         </div>
+        <div className={[classes.btn, "right"].join(" ")} onClick={() => flipBook.current.pageFlip().flipNext()}>
+          <FontAwesomeIcon icon={faChevronRight} />
+        </div>
       </div>
+      <Center>
+        <p>
+          {page}/{props.scougi.pages}
+        </p>
+      </Center>
     </div>
   );
 };
