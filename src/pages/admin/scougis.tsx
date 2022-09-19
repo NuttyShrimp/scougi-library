@@ -1,6 +1,7 @@
 import DropboxChooser from "react-dropbox-chooser";
 import {
   faCircleCheck,
+  faExclamationTriangle,
   faExternalLink,
   faFileUpload,
   faPaperPlane,
@@ -61,6 +62,26 @@ const Scougis: NextPage<ScougiAdminProps> = props => {
           color: "red",
           icon: <FontAwesomeIcon icon={faXmarkCircle} />,
         });
+        return;
+      }
+      showNotification({
+        title: "Started page processing process",
+        message: "Do not leave the page otherwise the pages of the scougi will not be generated properly",
+        color: "orange",
+        icon: <FontAwesomeIcon icon={faExclamationTriangle} />,
+      });
+
+      const resData = await res.json()
+      if (resData.pages) {
+        for (let i = 0; i < resData.pages; i++) {
+          await fetch(`${origin}/api/scougi/page`, {
+            method: "POST",
+            body: JSON.stringify({
+              pageNumber: i,
+              scougiId: resData.scougiId
+            }),
+          })
+        }
       }
       showNotification({
         title: `Successfully published a new scougi`,
@@ -68,9 +89,7 @@ const Scougis: NextPage<ScougiAdminProps> = props => {
         color: "green",
         icon: <FontAwesomeIcon icon={faCircleCheck} />,
       });
-      if (res.ok) {
-        refreshData();
-      }
+      refreshData();
     } catch (e) {
       console.error(e);
       showNotification({

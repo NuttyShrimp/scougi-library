@@ -64,18 +64,28 @@ model VerificationToken {
 // endregion
 
 model Scougi {
-  id         Int          @id @default(autoincrement())
-  year       String
-  trim       Int
-  pages      Int
-  hidden     Boolean      @default(false)
-  updatedAt  DateTime     @updatedAt @default(now())
-  ScougiPage ScougiPage[]
+  id            Int             @id @default(autoincrement())
+  year          String
+  trim          Int
+  pages         Int
+  hidden        Boolean         @default(false)
+  updatedAt     DateTime        @default(now()) @updatedAt
+  ScougiPage    ScougiPage[]
+  ScougiPdfPage ScougiPdfPage[]
 
   @@unique([year, trim])
 }
 
 model ScougiPage {
+  number Int
+  id     Int
+  data   Bytes
+  scougi Scougi @relation(fields: [id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@id([number, id])
+}
+
+model ScougiPdfPage {
   number Int
   id     Int
   data   Bytes

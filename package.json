@@ -25,6 +25,7 @@
     "@prisma/client": "^4.3.1",
     "@react-spring/web": "^9.5.3",
     "@sentry/nextjs": "^7.12.1",
+    "async-batch": "^1.1.2",
     "gs": "https://github.com/sina-masnadi/node-gs/tarball/master",
     "idb": "^7.0.2",
     "localforage": "^1.10.0",

@@ -3,6 +3,7 @@ import { unstable_getServerSession } from "next-auth";
 import { authOptions } from "../auth/[...nextauth]";
 import prisma from "../../../lib/prisma";
 import { PDFDocument } from "pdf-lib";
+import asyncBatch from "async-batch";
 
 export default async function handle(req: NextApiRequest, res: NextApiResponse) {
   const isProd = process.env.NODE_ENV === 'production'
@@ -46,24 +47,32 @@ export default async function handle(req: NextApiRequest, res: NextApiResponse) 
   });
 
 
-  // TODO: move to batch process
-  for (let i = 0; i < pageCount; i++) {
+  await asyncBatch(Array.from({ length: pageCount }), async (_: any, i: number) => {
     const pagePDF = await PDFDocument.create();
     const [page] = await pagePDF.copyPages(masterPDF, [i]);
     pagePDF.addPage(page);
     const pageData = await pagePDF.save();
-    fetch(`${origin}/api/scougi/page`, {
-      method: "POST",
-      body: JSON.stringify({
-        page: Buffer.from(pageData),
+    await prisma.scougiPdfPage.create({
+      data: {
+        id: scougi.id,
+        data: Buffer.from(pageData),
         number: i,
-        scougiId: scougi.id
-      }),
-      headers: {
-        'x-token': process.env.TOKEN ?? ""
       }
     })
-  }
+  }, 5)
+  // for (let i = 0; i < pageCount; i++) {
+  //   const pagePDF = await PDFDocument.create();
+  //   const [page] = await pagePDF.copyPages(masterPDF, [i]);
+  //   pagePDF.addPage(page);
+  //   const pageData = await pagePDF.save();
+  //   await prisma.scougiPdfPage.create({
+  //     data:{ 
+  //       id: scougi.id,
+  //       data: Buffer.from(pageData),
+  //       number: i,
+  //     }
+  //   })
+  // }
 
-  res.status(200).send({ success: true });
+  res.status(200).send({ success: true, scougiId: scougi.id, pages: pageCount });
 }
