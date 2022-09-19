@@ -1,6 +1,6 @@
 import { createStyles } from "@mantine/core";
 
-export const useStyles = createStyles(() => ({
+export const useStyles = createStyles(theme => ({
   wrapper: {
     "& .stf__parent": {
       "-ms-overflow-style": "none",
@@ -28,6 +28,9 @@ export const useStyles = createStyles(() => ({
     height: "20vh",
     padding: ".5vh",
     cursor: "pointer",
+    "&:hover":{
+      outline: `.1vh solid ${theme.colors.scoutsYellow[7]}`
+    },
     "&.right": {
       borderRadius: "0 1vh 1vh 0",
     },
@@ -35,4 +38,11 @@ export const useStyles = createStyles(() => ({
       borderRadius: "1vh 0 0 1vh",
     },
   },
+  pageInput: {
+    marginTop: '.5vh',
+    width: "5vw",
+    "& input": {
+      textAlign: 'center'
+    }
+  }
 }));

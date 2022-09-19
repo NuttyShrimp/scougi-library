@@ -1,4 +1,4 @@
-import { Divider, Title, Center, Anchor } from "@mantine/core";
+import { Divider, Title, Center, Anchor, NumberInput, Group } from "@mantine/core";
 import { GetServerSideProps, NextPage } from "next";
 import React, { forwardRef, useContext, useEffect, useRef, useState } from "react";
 import prisma from "../../../lib/prisma";
@@ -27,14 +27,12 @@ const ScougiPage = forwardRef<any, { pageNumber: number; currentPage: number; he
     useEffect(() => {
       setShouldRender(
         (currentPage <= pageNumber && currentPage + preload >= pageNumber) ||
-          (currentPage >= pageNumber && currentPage - preload <= pageNumber)
+        (currentPage >= pageNumber && currentPage - preload <= pageNumber)
       );
     }, [currentPage, pageNumber]);
 
     return (
-      <div ref={ref}>
-        {shouldRender && <PdfPage page={pageNumber} shouldLoad={shouldRender} height={height} />}
-      </div>
+      <div ref={ref}>{shouldRender && <PdfPage page={pageNumber} shouldLoad={shouldRender} height={height} />}</div>
     );
   }
 );
@@ -46,7 +44,7 @@ const ScougiDisplay: NextPage<ScougiProps> = props => {
   const [page, setPage] = useState(0);
   const [isPortrait, setIsPortrait] = useState(false);
   const [ref, { height }] = useMeasure();
-  const minWidth = useVwToPixel(90)
+  const minWidth = useVwToPixel(90);
 
   const onPage = (e: any) => {
     setPage(e.data);
@@ -60,6 +58,13 @@ const ScougiDisplay: NextPage<ScougiProps> = props => {
       );
     }
     return pages;
+  };
+
+  const goToPage = (page: number | undefined) => {
+    if (!page) return;
+    page = Math.max(1, Math.min(props.scougi.pages, page));
+    flipBook.current.pageFlip().turnToPage(page - 1);
+    setPage(page - 1);
   };
 
   useEffect(() => {
@@ -80,12 +85,14 @@ const ScougiDisplay: NextPage<ScougiProps> = props => {
         </title>
       </Head>
       <Title order={4}>
-        <Link href='/'>
+        <Link href="/">
           <Anchor>
             <FontAwesomeIcon icon={faChevronLeft} />
           </Anchor>
         </Link>
-        <span style={{marginLeft: '.3vw'}}>Scougi - {props.scougi.year} - {TrimesterNames[props.scougi.trim ?? 0]}</span>
+        <span style={{ marginLeft: ".3vw" }}>
+          Scougi - {props.scougi.year} - {TrimesterNames[props.scougi.trim ?? 0]}
+        </span>
       </Title>
       <Divider mb={"md"} />
       <div className={classes.bookWrapper}>
@@ -107,7 +114,7 @@ const ScougiDisplay: NextPage<ScougiProps> = props => {
             ref={flipBook}
             mobileScrollSupport={false}
             usePortrait={true}
-            // swipeDistance={isPortrait ? 15 : 30}
+          // swipeDistance={isPortrait ? 15 : 30}
           >
             {getPages()}
           </HTMLFlipBook>
@@ -117,9 +124,22 @@ const ScougiDisplay: NextPage<ScougiProps> = props => {
         </div>
       </div>
       <Center>
-        <p>
-          {page+1}/{props.scougi.pages}
-        </p>
+        <NumberInput
+          value={page + 1}
+          size="sm"
+          hideControls
+          onChange={goToPage}
+          width="1vw"
+          min={1}
+          max={props.scougi.pages}
+          step={isPortrait ? 1 : 2}
+          parser={value => value && value.replace(/\/\d*/g, "")}
+          formatter={value =>
+            !Number.isNaN(value ? parseInt(value) : NaN) ? `${value}/${props.scougi.pages}` : `1/${props.scougi.pages}`
+          }
+          className={classes.pageInput}
+        />
+        {/*<p>/{props.scougi.pages}</p>*/}
       </Center>
     </div>
   );
