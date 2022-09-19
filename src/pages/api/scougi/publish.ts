@@ -7,6 +7,7 @@ import { PDFDocument } from "pdf-lib";
 import gs from "gs";
 import { readFileSync, writeFileSync } from "fs";
 import * as os from "os";
+import { log } from "next-axiom";
 
 export default async function handle(req: NextApiRequest, res: NextApiResponse) {
   const isProd = process.env.NODE_ENV === 'production'
@@ -51,50 +52,53 @@ export default async function handle(req: NextApiRequest, res: NextApiResponse) 
     },
   });
 
-  try {
-  // TODO: move to batch process
-  for (let i = 0; i < pageCount; i++) {
-    const pagePNG = await new Promise<Buffer>(response => {
-      gs()
-        .executablePath("gs")
-        .option("-dQUIET")
-        .option("-dPARANOIDSAFER")
-        .batch()
-        .nopause()
-        .option("-dNOPROMPT")
-        .device("png16m")
-        .define("TextAlphaBits", 4)
-        .define("GraphicsAlphaBits", 4)
-        .option("-r96")
-        .option(`-dFirstPage=${i + 1}`)
-        .option(`-dLastPage=${i + 1}`)
-        .output(`${isProd ? '/tmp' : os.tmpdir()}/scougi-page-${i}.png`)
-        .input(`${isProd ? '/tmp' : os.tmpdir()}/scougi.pdf`)
-        .exec((err: any, stdOut: string, stdErr: any) => {
-          if (err) {
-            console.error(err);
-            res.status(400).send({ success: false });
-            return;
-          }
-          if (stdErr) {
-            console.error(stdErr);
-            res.status(400).send({ success: false });
-            return;
-          }
-          const imageBuffer = readFileSync(`/tmp/scougi-page-${i}.png`);
-          response(imageBuffer);
-        });
-    });
-    await prisma.scougiPage.create({
-      data: {
-        number: i,
-        id: scougi.id,
-        data: pagePNG,
-      },
-    });
-  }
+  log.info('Created new scougi', { trim, year })
 
-  res.status(200).send({ success: true });
+  try {
+    // TODO: move to batch process
+    for (let i = 0; i < pageCount; i++) {
+      const pagePNG = await new Promise<Buffer>(response => {
+        gs()
+          .executablePath("gs")
+          .option("-dQUIET")
+          .option("-dPARANOIDSAFER")
+          .batch()
+          .nopause()
+          .option("-dNOPROMPT")
+          .device("png16m")
+          .define("TextAlphaBits", 4)
+          .define("GraphicsAlphaBits", 4)
+          .option("-r96")
+          .option(`-dFirstPage=${i + 1}`)
+          .option(`-dLastPage=${i + 1}`)
+          .output(`${isProd ? '/tmp' : os.tmpdir()}/scougi-page-${i}.png`)
+          .input(`${isProd ? '/tmp' : os.tmpdir()}/scougi.pdf`)
+          .exec((err: any, stdOut: string, stdErr: any) => {
+            if (err) {
+              console.error(err);
+              res.status(400).send({ success: false });
+              return;
+            }
+            if (stdErr) {
+              console.error(stdErr);
+              res.status(400).send({ success: false });
+              return;
+            }
+            const imageBuffer = readFileSync(`/tmp/scougi-page-${i}.png`);
+            response(imageBuffer);
+          });
+      });
+      log.info("created new scougi page", { scougiId: scougi.id, pageNumber: i + 1 })
+      await prisma.scougiPage.create({
+        data: {
+          number: i,
+          id: scougi.id,
+          data: pagePNG,
+        },
+      });
+    }
+
+    res.status(200).send({ success: true });
   } catch (e) {
     console.error(e)
     res.status(500).send(e)
