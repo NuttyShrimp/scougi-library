@@ -8,6 +8,7 @@ import gs from "gs";
 import { readFileSync, writeFileSync } from "fs";
 import * as os from "os";
 import { log } from "next-axiom";
+import path from "path";
 
 export default async function handle(req: NextApiRequest, res: NextApiResponse) {
   const isProd = process.env.NODE_ENV === 'production'
@@ -52,14 +53,13 @@ export default async function handle(req: NextApiRequest, res: NextApiResponse) 
     },
   });
 
-  log.info('Created new scougi', { trim, year })
 
   try {
     // TODO: move to batch process
     for (let i = 0; i < pageCount; i++) {
       const pagePNG = await new Promise<Buffer>(response => {
         gs()
-          .executablePath("gs")
+          .executablePath(path.join(process.cwd(),"data/ghostscript/bin/gs"))
           .option("-dQUIET")
           .option("-dPARANOIDSAFER")
           .batch()
