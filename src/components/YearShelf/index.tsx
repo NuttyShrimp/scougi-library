@@ -70,7 +70,7 @@ const ShelfEntry: FC<{ year: string; trim: number; id: number }> = ({ year, trim
           >
             <PdfPage page={0} shouldLoad height={pageHeight} overrideId={id} />
           </animated.div>
-          </div>
+        </div>
         <Center>
           <Text size={"md"} weight={"bolder"}>
             {TrimesterNames[trim]}
