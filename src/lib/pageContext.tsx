@@ -70,7 +70,6 @@ export const PageContextProvider: FC<PropsWithChildren<{}>> = ({ children }) => 
     for (let i = 0; i < pageCount; i++) {
       const page = await idb.current?.getValue("pages", `${scougiId}-${i}`);
       if (page) {
-        console.log(page)
         const linkToBlob =(window.URL || window.webkitURL).createObjectURL(page as Blob)
         pages.set(i, linkToBlob);
       }

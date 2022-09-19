@@ -2,12 +2,13 @@
 - [x] Dropbox chooser
 - [x] Available scougi's are shown as book shelf (with first page displayed)
 - [x] Add caching of pages with IndexedDB (based on lastUpdated in scougi Entry of pScale)
-- [ ] Fix mobile view
+- [x] Fix mobile view
 - [ ] Lock system on pageCtx, Prevent double fetches
-- [ ] Add logging to API endpoint
+- [x] Add logging to API endpoint
 - [x] Add sentry
 - [x] Move scougi routing splitted to year and trim
 - [ ] Define background photo from admin panel
+- [ ] Rework publish and POST page func to reduce publish execution time with storing more data and doing more processing in post function
 
 # Admin
 - [x] List with approved users
@@ -18,4 +19,3 @@
   - [x] Ability to hide the entry in the bookshelf, This allows the site to be used for eg. menu of het etentje
   - [x] Add delete button for published scougis
   - [ ] Add replace button for published scougis
-

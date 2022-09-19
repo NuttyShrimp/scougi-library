@@ -12,9 +12,6 @@ export const useStyles = createStyles(() => ({
       },
     },
   },
-  page: {
-    background: "white",
-  },
   bookWrapper: {
     display: "flex",
     justifyContent: "center",
@@ -22,9 +19,6 @@ export const useStyles = createStyles(() => ({
   },
   book: {
     width: "60vw",
-  },
-  mobileBook: {
-    width: "90vw",
   },
   btn: {
     display: "flex",

@@ -86,7 +86,6 @@ export default async function handle(req: NextApiRequest, res: NextApiResponse) 
             res.status(400).send({ success: false });
             return;
           }
-          console.log(stdOut)
           const imageBuffer = readFileSync(`/tmp/scougi-page-${pageNumber}.png`);
           response(imageBuffer);
         });

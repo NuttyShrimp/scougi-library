@@ -13,6 +13,7 @@ import { PdfPage } from "../../../components/PdfPage";
 import useMeasure from "react-use-measure";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronLeft, faChevronRight } from "@fortawesome/free-solid-svg-icons";
+import { useVwToPixel } from "src/hooks/useVwToPixel";
 
 declare interface ScougiProps {
   scougi: Omit<DB.Scougi, "hidden">;
@@ -20,7 +21,6 @@ declare interface ScougiProps {
 
 const ScougiPage = forwardRef<any, { pageNumber: number; currentPage: number; height: number; preload: number }>(
   ({ pageNumber, currentPage, height, preload }, ref) => {
-    const { classes } = useStyles();
     const [shouldRender, setShouldRender] = useState(false);
 
     useEffect(() => {
@@ -31,7 +31,7 @@ const ScougiPage = forwardRef<any, { pageNumber: number; currentPage: number; he
     }, [currentPage, pageNumber]);
 
     return (
-      <div ref={ref} className={classes.page}>
+      <div ref={ref}>
         {shouldRender && <PdfPage page={pageNumber} shouldLoad={shouldRender} height={height} />}
       </div>
     );
@@ -45,6 +45,7 @@ const ScougiDisplay: NextPage<ScougiProps> = props => {
   const [page, setPage] = useState(0);
   const [isPortrait, setIsPortrait] = useState(false);
   const [ref, { height }] = useMeasure();
+  const minWidth = useVwToPixel(90)
 
   const onPage = (e: any) => {
     setPage(e.data);
@@ -85,22 +86,22 @@ const ScougiDisplay: NextPage<ScougiProps> = props => {
         <div className={[classes.btn, "left"].join(" ")} onClick={() => flipBook.current.pageFlip().flipPrev()}>
           <FontAwesomeIcon icon={faChevronLeft} />
         </div>
-        <div className={isPortrait ? classes.mobileBook : classes.book} ref={ref}>
+        <div className={isPortrait ? "" : classes.book} ref={ref}>
           <HTMLFlipBook
             showCover
             flippingTime={250}
             width={515}
             height={733}
             size={"stretch"}
-            minWidth={280}
+            minWidth={minWidth < 515 ? minWidth : 280}
+            minHeight={minWidth * 1.414 < 733 ? minWidth : 400}
             maxWidth={1000}
-            minHeight={400}
             maxHeight={1498}
             onFlip={onPage}
             ref={flipBook}
             mobileScrollSupport={false}
             usePortrait={true}
-            swipeDistance={isPortrait ? 15 : 30}
+            // swipeDistance={isPortrait ? 15 : 30}
           >
             {getPages()}
           </HTMLFlipBook>
@@ -111,7 +112,7 @@ const ScougiDisplay: NextPage<ScougiProps> = props => {
       </div>
       <Center>
         <p>
-          {page}/{props.scougi.pages}
+          {page+1}/{props.scougi.pages}
         </p>
       </Center>
     </div>

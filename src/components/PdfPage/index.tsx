@@ -28,7 +28,7 @@ export const PdfPage: FC<PdfPageProps> = ({ page, overrideId, shouldLoad, height
   return (
     <>
       {!rendered && <LoadPage height={height} />}
-      <div className={styles.page} style={{ display: rendered ? "block" : "none" }}>
+      <div className={styles.page} style={{ display: rendered ? "block" : "none", height, width: height/1.414 }}>
         <img src={pagePDF} alt={`scougi page ${page}`} onLoad={() => setRendered(true)} />
       </div>
     </>
