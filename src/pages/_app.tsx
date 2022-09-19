@@ -17,6 +17,7 @@ function MyApp({ Component, pageProps: { session, ...pageProps } }: AppProps) {
       <div data-theme="scouts">
         <Head>
           <title>Scougi - Scouts en Gidsen Asse</title>
+          <meta name="description" content="Verzameling van alle beschibare scougis van Scouts en Gidsen Asse"/>
         </Head>
         <MantineProvider withGlobalStyles withNormalizeCSS theme={theme}>
           <ModalsProvider>
