@@ -6,3 +6,12 @@
   background: rgba(100, 100, 100, 0.3);
   transform: perspective(450px) rotateX(40deg);
 }
+
+.book {
+  flex: 1;
+  & > div {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+}

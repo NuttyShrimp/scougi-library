@@ -56,19 +56,21 @@ const ShelfEntry: FC<{ year: string; trim: number; id: number }> = ({ year, trim
 
   return (
     <Link href={`/scougi/${year}/${trim}`}>
-      <Stack spacing={"xs"} className={"clickable"}>
-        <animated.div
-          ref={domTarget}
-          style={{
-            transform: "perspective(600px)",
-            scale,
-            rotateX,
-            rotateY,
-            rotateZ,
-          }}
-        >
-          <PdfPage page={0} shouldLoad height={pageHeight} overrideId={id} />
-        </animated.div>
+      <Stack spacing={"xs"} className={`${styles.book} clickable`}>
+        <div>
+          <animated.div
+            ref={domTarget}
+            style={{
+              transform: "perspective(600px)",
+              scale,
+              rotateX,
+              rotateY,
+              rotateZ,
+            }}
+          >
+            <PdfPage page={0} shouldLoad height={pageHeight} overrideId={id} />
+          </animated.div>
+          </div>
         <Center>
           <Text size={"md"} weight={"bolder"}>
             {TrimesterNames[trim]}
@@ -90,7 +92,7 @@ export const YearShelf: FC<{ year: string; trims: number[] }> = props => {
           {props.year}
         </Title>
       </Center>
-      <Group position={"left"}>
+      <Group grow noWrap={false}>
         {props.trims
           .map((id, trim) => (id ? <ShelfEntry key={id} year={props.year} id={id} trim={trim} /> : null))
           .filter(t => t)}
