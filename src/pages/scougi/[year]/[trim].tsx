@@ -1,4 +1,4 @@
-import { Divider, Title, Center } from "@mantine/core";
+import { Divider, Title, Center, Anchor } from "@mantine/core";
 import { GetServerSideProps, NextPage } from "next";
 import React, { forwardRef, useContext, useEffect, useRef, useState } from "react";
 import prisma from "../../../lib/prisma";
@@ -14,6 +14,7 @@ import useMeasure from "react-use-measure";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronLeft, faChevronRight } from "@fortawesome/free-solid-svg-icons";
 import { useVwToPixel } from "src/hooks/useVwToPixel";
+import Link from "next/link";
 
 declare interface ScougiProps {
   scougi: Omit<DB.Scougi, "hidden">;
@@ -79,7 +80,12 @@ const ScougiDisplay: NextPage<ScougiProps> = props => {
         </title>
       </Head>
       <Title order={4}>
-        Scougi - {props.scougi.year} - {TrimesterNames[props.scougi.trim ?? 0]}
+        <Link href='/'>
+          <Anchor>
+            <FontAwesomeIcon icon={faChevronLeft} />
+          </Anchor>
+        </Link>
+        <span style={{marginLeft: '.3vw'}}>Scougi - {props.scougi.year} - {TrimesterNames[props.scougi.trim ?? 0]}</span>
       </Title>
       <Divider mb={"md"} />
       <div className={classes.bookWrapper}>
