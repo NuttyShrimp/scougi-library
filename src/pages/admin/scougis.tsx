@@ -51,6 +51,7 @@ const Scougis: NextPage<ScougiAdminProps> = props => {
           year: selectedYear,
           trim: selectedTrim,
           url: selectedFile?.link,
+          origin: location.origin,
         }),
       });
       if (!res.ok) {
