@@ -40,7 +40,8 @@ export const useStyles = createStyles(theme => ({
   },
   pageInput: {
     marginTop: '.5vh',
-    width: "5vw",
+    minWidth: "5vw",
+    width: 'min-content',
     "& input": {
       textAlign: 'center'
     }
