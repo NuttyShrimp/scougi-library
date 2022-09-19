@@ -27,4 +27,6 @@ const sentryWebpackPluginOptions = {
   // https://github.com/getsentry/sentry-webpack-plugin#options.
 };
 
+global.__basedir = __dirname;
+
 module.exports = withSentryConfig(nextConfig, sentryWebpackPluginOptions);

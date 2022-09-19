@@ -1,12 +1,7 @@
 import React, { FC, useContext, useEffect, useState } from "react";
 import { LoadPage } from "../LoadPage";
-import { pdfjs, Document, Page } from "react-pdf";
-// @ts-ignore
-// import pdfjsWorker from "pdfjs-dist/build/pdf.worker";
 import { pageContext } from "../../lib/pageContext";
-
-// pdfjs.GlobalWorkerOptions.workerSrc = pdfjsWorker;
-pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
+import styles from '../../styles/pdfPage.module.scss';
 
 declare interface PdfPageProps {
   page: number;
@@ -17,7 +12,7 @@ declare interface PdfPageProps {
 
 export const PdfPage: FC<PdfPageProps> = ({ page, overrideId, shouldLoad, height }) => {
   const [rendered, setRendered] = useState(false);
-  const [pagePDF, setPagePDF] = useState<Uint8Array>();
+  const [pagePDF, setPagePDF] = useState<string>();
   const pageCtx = useContext(pageContext);
 
   const loadPage = async () => {
@@ -33,18 +28,8 @@ export const PdfPage: FC<PdfPageProps> = ({ page, overrideId, shouldLoad, height
   return (
     <>
       {!rendered && <LoadPage height={height} />}
-      <div style={{ display: rendered ? "block" : "none" }}>
-        <Document file={pagePDF} noData={""} loading={""} error={""}>
-          <Page
-            pageIndex={0}
-            width={height / 1.414}
-            height={height}
-            onRenderSuccess={() => setRendered(true)}
-            noData={""}
-            loading={""}
-            error={""}
-          />
-        </Document>
+      <div className={styles.page} style={{ display: rendered ? "block" : "none" }}>
+        <img src={pagePDF} alt={`scougi page ${page}`} onLoad={() => setRendered(true)} />
       </div>
     </>
   );

@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "postinstall": "patch-package"
+    "postinstall": "patch-package",
+    "vercel-build": "yum install ghostscript && next build"
   },
   "dependencies": {
     "@emotion/react": "^11.10.4",
@@ -25,6 +26,7 @@
     "@react-spring/web": "^9.5.3",
     "@sentry/nextjs": "^7.12.1",
     "idb": "^7.0.2",
+    "gs": "https://github.com/sina-masnadi/node-gs/tarball/master",
     "localforage": "^1.10.0",
     "next": "12.2.5",
     "next-auth": "^4.10.3",

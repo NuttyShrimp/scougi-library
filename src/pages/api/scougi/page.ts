@@ -1,6 +1,6 @@
+import { Blob } from "buffer";
 import { NextApiRequest, NextApiResponse } from "next";
 import prisma from "../../../lib/prisma";
-import { makeSerializable } from "../../../lib/util";
 
 export default async function handle(req: NextApiRequest, res: NextApiResponse) {
   const { method } = req;
@@ -24,6 +24,9 @@ export default async function handle(req: NextApiRequest, res: NextApiResponse) 
     },
     where: { number: Number(page), id: Number(id) },
   });
+  if (!pageData?.data) {
+    return res.status(404).send({});
+  }
 
-  res.status(200).send({ page: makeSerializable(pageData?.data) });
+  res.status(200).send(pageData?.data);
 }

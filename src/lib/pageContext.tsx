@@ -2,46 +2,47 @@ import { createContext, FC, PropsWithChildren, useRef, useState } from "react";
 import IndexedDb from "./dbservice";
 
 interface PageContext {
-  pages: Map<number, Uint8Array>;
+  pages: Map<number, string>;
   id: number;
-  getPage: (pageNum: number, IdOverride?: number) => Promise<Uint8Array>;
+  getPage: (pageNum: number, IdOverride?: number) => Promise<string>;
   openScougi: (id: number, updatedAt: string, pageCount: number) => void;
 }
 
-// TODO: Support multiple PDFs
-// TODO: read-write to indexDB
 export const pageContext = createContext<PageContext>({
   pages: new Map(),
   id: 0,
-  getPage: async () => new Uint8Array(),
+  getPage: async () => "",
   openScougi: () => null,
 });
 
+
 export const PageContextProvider: FC<PropsWithChildren<{}>> = ({ children }) => {
   const idb = useRef<IndexedDb>();
-  const [pages, setPages] = useState<Map<number, Uint8Array>>(new Map());
+  const [pages, setPages] = useState<Map<number, string>>(new Map());
   const [id, setId] = useState(0);
 
   const getPage = async (pageNum: number, scougiIdOverride?: number) => {
     if (pages.has(pageNum) && !scougiIdOverride) {
-      return pages.get(pageNum);
+      return pages.get(pageNum)!;
     }
     if (scougiIdOverride && scougiIdOverride !== id) {
       const page = await idb.current?.getValue("pages", `${scougiIdOverride}-${pageNum}`);
-      if (page) return page;
+      if (page) return (window.URL || window.webkitURL).createObjectURL(page as Blob);
     }
     const pageRes = await fetch(`/api/scougi/page?id=${scougiIdOverride ?? id}&page=${pageNum}`, {
       method: "GET",
-    }).then(res => res.json());
-    if (scougiIdOverride && scougiIdOverride !== id) return pageRes.page;
+    }).then(res => res.arrayBuffer());
+    const pageBlob = new Blob([new Uint8Array(pageRes)], { type: "image/png" })
+    const linkToBlob =(window.URL || window.webkitURL).createObjectURL(pageBlob) 
+    if (scougiIdOverride && scougiIdOverride !== id) linkToBlob;
     setPages(pages => {
-      pages.set(pageNum, pageRes.page);
+      pages.set(pageNum, linkToBlob);
       return pages;
     });
     if (idb.current) {
-      idb.current?.putValue("pages", pageRes.page, `${id}-${pageNum}`);
+      idb.current?.putValue("pages", pageBlob, `${id}-${pageNum}`);
     }
-    return pageRes.page;
+    return linkToBlob;
   };
 
   const openScougi = async (scougiId: number, lastUpdate: string, pageCount: number) => {
@@ -69,7 +70,9 @@ export const PageContextProvider: FC<PropsWithChildren<{}>> = ({ children }) => 
     for (let i = 0; i < pageCount; i++) {
       const page = await idb.current?.getValue("pages", `${scougiId}-${i}`);
       if (page) {
-        pages.set(i, page);
+        console.log(page)
+        const linkToBlob =(window.URL || window.webkitURL).createObjectURL(page as Blob)
+        pages.set(i, linkToBlob);
       }
     }
     setPages(pages);
