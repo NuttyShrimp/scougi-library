@@ -10,7 +10,6 @@ import { ModalsProvider } from "@mantine/modals";
 import { NotificationsProvider } from "@mantine/notifications";
 import { AdminNavbar } from "../components/AdminNavbar";
 import { PageContextProvider } from "../lib/pageContext";
-export { reportWebVitals } from 'next-axiom';
 
 function MyApp({ Component, pageProps: { session, ...pageProps } }: AppProps) {
   return (

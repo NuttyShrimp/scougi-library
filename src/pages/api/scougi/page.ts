@@ -4,7 +4,6 @@ import prisma from "../../../lib/prisma";
 import gs from "gs";
 import { readFileSync, writeFileSync } from "fs";
 import * as os from "os";
-import { log } from "next-axiom";
 import path from "path";
 import { unstable_getServerSession } from "next-auth";
 import { authOptions } from "../auth/[...nextauth]";
@@ -90,7 +89,6 @@ export default async function handle(req: NextApiRequest, res: NextApiResponse) 
           response(imageBuffer);
         });
     });
-    log.info("created new scougi page", { scougiId: scougiId, pageNumber: pageNumber + 1 })
     await prisma.scougiPage.create({
       data: {
         number: pageNumber,
