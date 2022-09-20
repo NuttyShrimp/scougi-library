@@ -10,6 +10,7 @@ import { ModalsProvider } from "@mantine/modals";
 import { NotificationsProvider } from "@mantine/notifications";
 import { AdminNavbar } from "../components/AdminNavbar";
 import { PageContextProvider } from "../lib/pageContext";
+import Script from "next/script";
 
 function MyApp({ Component, pageProps: { session, ...pageProps } }: AppProps) {
   return (
@@ -19,6 +20,7 @@ function MyApp({ Component, pageProps: { session, ...pageProps } }: AppProps) {
           <title>Scougi - Scouts en Gidsen Asse</title>
           <meta name="description" content="Verzameling van alle beschibare scougis van Scouts en Gidsen Asse"/>
         </Head>
+        <Script data-domain="scougi-library.vercel.app" src="https://plausible.nuttyshrimp.me/js/plausible.js" />
         <MantineProvider withGlobalStyles withNormalizeCSS theme={theme}>
           <ModalsProvider>
             <NotificationsProvider>
