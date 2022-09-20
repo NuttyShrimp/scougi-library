@@ -87,7 +87,7 @@ const ScougiDisplay: NextPage<ScougiProps> = props => {
     const pdfBlob = await fetch(`/api/scougi/download?id=${props.scougi.id}`, {
       method: "GET",
     }).then(res => res.blob());
-    const url = window.URL.createObjectURL(pdfBlob);
+    const url = window.URL.createObjectURL(new Blob([pdfBlob]));
     const a = Object.assign(document.createElement("a"), {
       href: url,
       download: "scougi.pdf",
@@ -96,7 +96,11 @@ const ScougiDisplay: NextPage<ScougiProps> = props => {
     document.body.appendChild(a);
 
     a.click();
-    URL.revokeObjectURL(url);
+    a.addEventListener("click", () => {
+      setTimeout(() => {
+        URL.revokeObjectURL(a.href);
+      }, 100);
+    });
     a.remove();
   };
 
@@ -119,25 +123,25 @@ const ScougiDisplay: NextPage<ScougiProps> = props => {
         </title>
       </Head>
       <Title order={4}>
-        {/*<Group position="apart">*/}
-        {/*  <div>*/}
-        <Link href="/">
-          <Anchor>
-            <FontAwesomeIcon icon={faArrowLeft} />
-          </Anchor>
-        </Link>
-        <span style={{ marginLeft: ".3vw" }}>
-          Scougi - {props.scougi.year} - {TrimesterNames[props.scougi.trim ?? 0]}
-        </span>
-        {/*</div>*/}
-        {/*<div>*/}
-        {/*  <Tooltip label='Download'>*/}
-        {/*    <Anchor onClick={downloadScougi}>*/}
-        {/*      <FontAwesomeIcon icon={faFileArrowDown} />*/}
-        {/*    </Anchor>*/}
-        {/*  </Tooltip>*/}
-        {/*</div>*/}
-        {/*</Group>*/}
+        <Group position="apart">
+          <div>
+            <Link href="/">
+              <Anchor>
+                <FontAwesomeIcon icon={faArrowLeft} />
+              </Anchor>
+            </Link>
+            <span style={{ marginLeft: ".3vw" }}>
+              Scougi - {props.scougi.year} - {TrimesterNames[props.scougi.trim ?? 0]}
+            </span>
+          </div>
+          <div>
+            <Tooltip label="Download">
+              <Anchor onClick={downloadScougi}>
+                <FontAwesomeIcon icon={faFileArrowDown} />
+              </Anchor>
+            </Tooltip>
+          </div>
+        </Group>
       </Title>
       <Divider mb={"md"} />
       <div className={classes.bookWrapper}>

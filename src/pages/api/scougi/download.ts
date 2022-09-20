@@ -1,8 +1,12 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { PDFDocument } from "pdf-lib";
 import { log } from "next-axiom";
+import prisma from "../../../lib/prisma";
+import { readFileSync, writeFileSync } from "fs";
+import * as os from "os";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  log.info("Received unchecked download request");
   if (req.method !== "GET") {
     res.setHeader("Allow", ["GET"]);
     res.status(405).end(`Method ${req.method} Not Allowed`);
@@ -13,8 +17,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   if (!id || Number.isNaN(Number(id))) {
     return res.status(400).send({ message: "missing data" });
   }
+  const logger = log.with({ handle: "download", id });
+  logger.info("Received a download request");
 
-  const pages = await prisma?.scougiPdfPage.findMany({
+  const pages = await prisma.scougiPdfPage.findMany({
     where: {
       id: Number(id),
     },
@@ -23,9 +29,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     },
   });
   if (!pages) {
-    return res.status(404).send({});
+    return res.status(404).send({ message: "No pages for scougi" });
   }
-  log.info("Started downloading process", { id });
+  logger.info("Started downloading process", { id });
 
   const mergedPDF = await PDFDocument.create();
   for (const pageData of pages) {
@@ -33,11 +39,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const [page] = await mergedPDF.copyPages(pagePDF, [0]);
     mergedPDF.addPage(page);
   }
+  const pdfBytes = await mergedPDF.save();
+  const isProd = process.env.NODE_ENV === "production";
+  writeFileSync(`${isProd ? "/tmp" : os.tmpdir()}/scougi.pdf`, pdfBytes);
 
   log.info("Successfully combined PDF", { id });
-  const pdfBuffer = Buffer.from(await mergedPDF.save());
 
   res.setHeader("Content-Type", "application/pdf");
-  res.setHeader("Content-Disposition", "attachment; filename=scougi.pdf");
-  res.status(200).send(pdfBuffer);
+  res.setHeader("Content-Disposition", "scougi.pdf");
+  res.status(200).send(readFileSync(`${isProd ? "/tmp" : os.tmpdir()}/scougi.pdf`));
 }
