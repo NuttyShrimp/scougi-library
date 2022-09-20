@@ -1,4 +1,4 @@
-import { Divider, Title, Center, Anchor, NumberInput, Group } from "@mantine/core";
+import { Divider, Title, Center, Anchor, NumberInput, Group, Text } from "@mantine/core";
 import { GetServerSideProps, NextPage } from "next";
 import React, { forwardRef, useContext, useEffect, useRef, useState } from "react";
 import prisma from "../../../lib/prisma";
@@ -20,8 +20,8 @@ declare interface ScougiProps {
   scougi: Omit<DB.Scougi, "hidden">;
 }
 
-const ScougiPage = forwardRef<any, { pageNumber: number; currentPage: number; height: number; preload: number }>(
-  ({ pageNumber, currentPage, height, preload }, ref) => {
+const ScougiPage = forwardRef<any, { pageNumber: number; currentPage: number; height: number; preload: number; scougiId: number }>(
+  ({ pageNumber, currentPage, height, preload, scougiId }, ref) => {
     const [shouldRender, setShouldRender] = useState(false);
 
     useEffect(() => {
@@ -32,7 +32,7 @@ const ScougiPage = forwardRef<any, { pageNumber: number; currentPage: number; he
     }, [currentPage, pageNumber]);
 
     return (
-      <div ref={ref}>{shouldRender && <PdfPage page={pageNumber} shouldLoad={shouldRender} height={height} />}</div>
+      <div ref={ref}>{shouldRender && <PdfPage page={pageNumber} shouldLoad={shouldRender} height={height} overrideId={scougiId} />}</div>
     );
   }
 );
@@ -54,7 +54,7 @@ const ScougiDisplay: NextPage<ScougiProps> = props => {
     const pages = [];
     for (let i = 0; i < props.scougi.pages; i++) {
       pages.push(
-        <ScougiPage key={`page-${i}`} pageNumber={i} currentPage={page} height={height} preload={isPortrait ? 1 : 3} />
+        <ScougiPage key={`page-${i}`} scougiId={props.scougi.id} pageNumber={i} currentPage={page} height={height} preload={isPortrait ? 1 : 3} />
       );
     }
     return pages;
@@ -69,6 +69,7 @@ const ScougiDisplay: NextPage<ScougiProps> = props => {
 
   useEffect(() => {
     pageCtx.openScougi(props.scougi.id, props.scougi.updatedAt, props.scougi.pages);
+    return () => pageCtx.openScougi(0, "", 0);
   }, []);
 
   useEffect(() => {
@@ -85,11 +86,11 @@ const ScougiDisplay: NextPage<ScougiProps> = props => {
         </title>
       </Head>
       <Title order={4}>
-        <Link href="/">
+      <Link href="/">
           <Anchor>
-            <FontAwesomeIcon icon={faChevronLeft} />
+            <FontAwesomeIcon icon={faChevronLeft} size={'sm'} />
           </Anchor>
-        </Link>
+          </Link>
         <span style={{ marginLeft: ".3vw" }}>
           Scougi - {props.scougi.year} - {TrimesterNames[props.scougi.trim ?? 0]}
         </span>

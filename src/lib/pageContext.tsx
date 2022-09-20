@@ -34,7 +34,7 @@ export const PageContextProvider: FC<PropsWithChildren<{}>> = ({ children }) => 
     }).then(res => res.arrayBuffer());
     const pageBlob = new Blob([new Uint8Array(pageRes)], { type: "image/png" })
     const linkToBlob =(window.URL || window.webkitURL).createObjectURL(pageBlob) 
-    if (scougiIdOverride && scougiIdOverride !== id) linkToBlob;
+    if (scougiIdOverride && scougiIdOverride !== id) return linkToBlob;
     setPages(pages => {
       pages.set(pageNum, linkToBlob);
       return pages;
