@@ -1,4 +1,4 @@
-import { Divider, Title, Center, Anchor, NumberInput, Group, Text } from "@mantine/core";
+import { Divider, Title, Center, Anchor, NumberInput, Group, Text, Tooltip } from "@mantine/core";
 import { GetServerSideProps, NextPage } from "next";
 import React, { forwardRef, useContext, useEffect, useRef, useState } from "react";
 import prisma from "../../../lib/prisma";
@@ -12,7 +12,7 @@ import Head from "next/head";
 import { PdfPage } from "../../../components/PdfPage";
 import useMeasure from "react-use-measure";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faChevronLeft, faChevronRight } from "@fortawesome/free-solid-svg-icons";
+import { faArrowLeft, faChevronLeft, faChevronRight, faDownload, faFileArrowDown } from "@fortawesome/free-solid-svg-icons";
 import { useVwToPixel } from "src/hooks/useVwToPixel";
 import Link from "next/link";
 
@@ -86,14 +86,27 @@ const ScougiDisplay: NextPage<ScougiProps> = props => {
         </title>
       </Head>
       <Title order={4}>
-        <Link href="/">
-          <Anchor>
-            <FontAwesomeIcon icon={faChevronLeft} size={'sm'} />
-          </Anchor>
-        </Link>
-        <span style={{ marginLeft: ".3vw" }}>
-          Scougi - {props.scougi.year} - {TrimesterNames[props.scougi.trim ?? 0]}
-        </span>
+        <Group position="apart">
+          <div>
+            <Link href="/">
+              <Anchor>
+                <FontAwesomeIcon icon={faArrowLeft} size={'sm'} />
+              </Anchor>
+            </Link>
+            <span style={{ marginLeft: ".3vw" }}>
+              Scougi - {props.scougi.year} - {TrimesterNames[props.scougi.trim ?? 0]}
+            </span>
+          </div>
+          <div>
+              <Link href={`/api/scougi/download?id=${props.scougi.id}`}>
+            <Tooltip label='Download'>
+                <Anchor>
+                  <FontAwesomeIcon icon={faFileArrowDown} />
+                </Anchor>
+            </Tooltip>
+              </Link>
+          </div>
+        </Group>
       </Title>
       <Divider mb={"md"} />
       <div className={classes.bookWrapper}>
