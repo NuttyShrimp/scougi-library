@@ -98,13 +98,13 @@ const ScougiDisplay: NextPage<ScougiProps> = props => {
             </span>
           </div>
           <div>
-              <Link href={`/api/scougi/download?id=${props.scougi.id}`}>
-            <Tooltip label='Download'>
+            <Link href={`/api/scougi/download?id=${props.scougi.id}`} download>
+              <Tooltip label='Download'>
                 <Anchor>
                   <FontAwesomeIcon icon={faFileArrowDown} />
                 </Anchor>
-            </Tooltip>
-              </Link>
+              </Tooltip>
+            </Link>
           </div>
         </Group>
       </Title>
