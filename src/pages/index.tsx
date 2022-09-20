@@ -23,7 +23,7 @@ const Home: NextPage = props => {
         <Title order={2}>Scougi - Scouts en Gidsen Asse</Title>
       </Center>
       <Divider my={"xs"} />
-      {Object.keys(scougis).length === 0 ? (
+      {Object.keys(scougis).reverse().length === 0 ? (
         <Center>
           <Loader size={"xl"} />
         </Center>

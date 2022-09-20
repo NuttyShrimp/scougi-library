@@ -86,11 +86,11 @@ const ScougiDisplay: NextPage<ScougiProps> = props => {
         </title>
       </Head>
       <Title order={4}>
-      <Link href="/">
+        <Link href="/">
           <Anchor>
             <FontAwesomeIcon icon={faChevronLeft} size={'sm'} />
           </Anchor>
-          </Link>
+        </Link>
         <span style={{ marginLeft: ".3vw" }}>
           Scougi - {props.scougi.year} - {TrimesterNames[props.scougi.trim ?? 0]}
         </span>
