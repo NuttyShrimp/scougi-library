@@ -10,7 +10,11 @@ import { ModalsProvider } from "@mantine/modals";
 import { NotificationsProvider } from "@mantine/notifications";
 import { AdminNavbar } from "../components/AdminNavbar";
 import { PageContextProvider } from "../lib/pageContext";
-export { reportWebVitals } from 'next-axiom';
+export { reportWebVitals } from "next-axiom";
+
+import "@fortawesome/fontawesome-svg-core/styles.css";
+import { config } from "@fortawesome/fontawesome-svg-core";
+config.autoAddCss = false; // Tell Font Awesome to skip adding the CSS automatically since it's being imported above
 
 function MyApp({ Component, pageProps: { session, ...pageProps } }: AppProps) {
   return (
@@ -18,7 +22,8 @@ function MyApp({ Component, pageProps: { session, ...pageProps } }: AppProps) {
       <div data-theme="scouts">
         <Head>
           <title>Scougi - Scouts en Gidsen Asse</title>
-          <meta name="description" content="Verzameling van alle beschibare scougis van Scouts en Gidsen Asse"/>
+          <meta name="description" content="Verzameling van alle beschibare scougis van Scouts en Gidsen Asse" />
+          <link rel="shortcut icon" href="/favicon.ico" />
         </Head>
         <MantineProvider withGlobalStyles withNormalizeCSS theme={theme}>
           <ModalsProvider>

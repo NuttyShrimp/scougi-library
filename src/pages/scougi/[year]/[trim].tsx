@@ -12,7 +12,13 @@ import Head from "next/head";
 import { PdfPage } from "../../../components/PdfPage";
 import useMeasure from "react-use-measure";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowLeft, faChevronLeft, faChevronRight, faDownload, faFileArrowDown } from "@fortawesome/free-solid-svg-icons";
+import {
+  faArrowLeft,
+  faChevronLeft,
+  faChevronRight,
+  faDownload,
+  faFileArrowDown,
+} from "@fortawesome/free-solid-svg-icons";
 import { useVwToPixel } from "src/hooks/useVwToPixel";
 import Link from "next/link";
 
@@ -20,22 +26,25 @@ declare interface ScougiProps {
   scougi: Omit<DB.Scougi, "hidden">;
 }
 
-const ScougiPage = forwardRef<any, { pageNumber: number; currentPage: number; height: number; preload: number; scougiId: number }>(
-  ({ pageNumber, currentPage, height, preload, scougiId }, ref) => {
-    const [shouldRender, setShouldRender] = useState(false);
+const ScougiPage = forwardRef<
+  any,
+  { pageNumber: number; currentPage: number; height: number; preload: number; scougiId: number }
+>(({ pageNumber, currentPage, height, preload, scougiId }, ref) => {
+  const [shouldRender, setShouldRender] = useState(false);
 
-    useEffect(() => {
-      setShouldRender(
-        (currentPage <= pageNumber && currentPage + preload >= pageNumber) ||
+  useEffect(() => {
+    setShouldRender(
+      (currentPage <= pageNumber && currentPage + preload >= pageNumber) ||
         (currentPage >= pageNumber && currentPage - preload <= pageNumber)
-      );
-    }, [currentPage, pageNumber]);
-
-    return (
-      <div ref={ref}>{shouldRender && <PdfPage page={pageNumber} shouldLoad={shouldRender} height={height} overrideId={scougiId} />}</div>
     );
-  }
-);
+  }, [currentPage, pageNumber]);
+
+  return (
+    <div ref={ref}>
+      {shouldRender && <PdfPage page={pageNumber} shouldLoad={shouldRender} height={height} overrideId={scougiId} />}
+    </div>
+  );
+});
 
 const ScougiDisplay: NextPage<ScougiProps> = props => {
   const { classes } = useStyles();
@@ -54,7 +63,14 @@ const ScougiDisplay: NextPage<ScougiProps> = props => {
     const pages = [];
     for (let i = 0; i < props.scougi.pages; i++) {
       pages.push(
-        <ScougiPage key={`page-${i}`} scougiId={props.scougi.id} pageNumber={i} currentPage={page} height={height} preload={isPortrait ? 1 : 3} />
+        <ScougiPage
+          key={`page-${i}`}
+          scougiId={props.scougi.id}
+          pageNumber={i}
+          currentPage={page}
+          height={height}
+          preload={isPortrait ? 1 : 3}
+        />
       );
     }
     return pages;
@@ -70,19 +86,19 @@ const ScougiDisplay: NextPage<ScougiProps> = props => {
   const downloadScougi = async () => {
     const pdfBlob = await fetch(`/api/scougi/download?id=${props.scougi.id}`, {
       method: "GET",
-    }).then(res => res.blob())
+    }).then(res => res.blob());
     const url = window.URL.createObjectURL(pdfBlob);
-    const a = Object.assign(document.createElement('a'), {
+    const a = Object.assign(document.createElement("a"), {
       href: url,
-      download: 'scougi.pdf',
-      style: 'display:none'
-    })
+      download: "scougi.pdf",
+      style: "display:none",
+    });
     document.body.appendChild(a);
 
     a.click();
     URL.revokeObjectURL(url);
     a.remove();
-  }
+  };
 
   useEffect(() => {
     pageCtx.openScougi(props.scougi.id, props.scougi.updatedAt, props.scougi.pages);
@@ -103,25 +119,25 @@ const ScougiDisplay: NextPage<ScougiProps> = props => {
         </title>
       </Head>
       <Title order={4}>
-        <Group position="apart">
-          <div>
-            <Link href="/">
-              <Anchor>
-                <FontAwesomeIcon icon={faArrowLeft} size={'sm'} />
-              </Anchor>
-            </Link>
-            <span style={{ marginLeft: ".3vw" }}>
-              Scougi - {props.scougi.year} - {TrimesterNames[props.scougi.trim ?? 0]}
-            </span>
-          </div>
-          <div>
-            <Tooltip label='Download'>
-              <Anchor onClick={downloadScougi}>
-                <FontAwesomeIcon icon={faFileArrowDown} />
-              </Anchor>
-            </Tooltip>
-          </div>
-        </Group>
+        {/*<Group position="apart">*/}
+        {/*  <div>*/}
+        <Link href="/">
+          <Anchor>
+            <FontAwesomeIcon icon={faArrowLeft} />
+          </Anchor>
+        </Link>
+        <span style={{ marginLeft: ".3vw" }}>
+          Scougi - {props.scougi.year} - {TrimesterNames[props.scougi.trim ?? 0]}
+        </span>
+        {/*</div>*/}
+        {/*<div>*/}
+        {/*  <Tooltip label='Download'>*/}
+        {/*    <Anchor onClick={downloadScougi}>*/}
+        {/*      <FontAwesomeIcon icon={faFileArrowDown} />*/}
+        {/*    </Anchor>*/}
+        {/*  </Tooltip>*/}
+        {/*</div>*/}
+        {/*</Group>*/}
       </Title>
       <Divider mb={"md"} />
       <div className={classes.bookWrapper}>
@@ -143,7 +159,7 @@ const ScougiDisplay: NextPage<ScougiProps> = props => {
             ref={flipBook}
             mobileScrollSupport={false}
             usePortrait={true}
-          // swipeDistance={isPortrait ? 15 : 30}
+            // swipeDistance={isPortrait ? 15 : 30}
           >
             {getPages()}
           </HTMLFlipBook>
