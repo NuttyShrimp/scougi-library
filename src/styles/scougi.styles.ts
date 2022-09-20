@@ -28,8 +28,8 @@ export const useStyles = createStyles(theme => ({
     height: "20vh",
     padding: ".5vh",
     cursor: "pointer",
-    "&:hover":{
-      outline: `.1vh solid ${theme.colors.scoutsYellow[7]}`
+    "&:hover": {
+      outline: `.1vh solid ${theme.colors.scoutsYellow[7]}`,
     },
     "&.right": {
       borderRadius: "0 1vh 1vh 0",
@@ -39,11 +39,18 @@ export const useStyles = createStyles(theme => ({
     },
   },
   pageInput: {
-    marginTop: '.5vh',
-    minWidth: "5vw",
-    width: 'min-content',
+    marginTop: ".5vh",
+    outline: ".1vh solid #333",
+    borderRadius: ".5vh",
+    "&:active": {
+      outline: `.1vh solid ${theme.colors.scoutsYellow[7]}`,
+    },
+    "& input:focus": {
+      outline: `.1vh solid ${theme.colors.scoutsYellow[7]}`,
+    },
     "& input": {
-      textAlign: 'center'
-    }
-  }
+      textAlign: "center",
+      borderRadius: ".5vh",
+    },
+  },
 }));

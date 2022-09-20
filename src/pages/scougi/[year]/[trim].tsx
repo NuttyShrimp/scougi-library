@@ -182,6 +182,8 @@ const ScougiDisplay: NextPage<ScougiProps> = props => {
           formatter={value =>
             !Number.isNaN(value ? parseInt(value) : NaN) ? `${value}/${props.scougi.pages}` : `1/${props.scougi.pages}`
           }
+          inputMode={"numeric"}
+          variant={"unstyled"}
           className={classes.pageInput}
         />
         {/*<p>/{props.scougi.pages}</p>*/}
