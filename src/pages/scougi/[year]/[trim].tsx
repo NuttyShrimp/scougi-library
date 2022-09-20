@@ -67,6 +67,23 @@ const ScougiDisplay: NextPage<ScougiProps> = props => {
     setPage(page - 1);
   };
 
+  const downloadScougi = async () => {
+    const pdfBlob = await fetch(`/api/scougi/download?id=${props.scougi.id}`, {
+      method: "GET",
+    }).then(res => res.blob())
+    const url = window.URL.createObjectURL(pdfBlob);
+    const a = Object.assign(document.createElement('a'), {
+      href: url,
+      download: 'scougi.pdf',
+      style: 'display:none'
+    })
+    document.body.appendChild(a);
+
+    a.click();
+    URL.revokeObjectURL(url);
+    a.remove();
+  }
+
   useEffect(() => {
     pageCtx.openScougi(props.scougi.id, props.scougi.updatedAt, props.scougi.pages);
     return () => pageCtx.openScougi(0, "", 0);
@@ -98,13 +115,11 @@ const ScougiDisplay: NextPage<ScougiProps> = props => {
             </span>
           </div>
           <div>
-            <Link href={`/api/scougi/download?id=${props.scougi.id}`} download>
-              <Tooltip label='Download'>
-                <Anchor>
-                  <FontAwesomeIcon icon={faFileArrowDown} />
-                </Anchor>
-              </Tooltip>
-            </Link>
+            <Tooltip label='Download'>
+              <Anchor onClick={downloadScougi}>
+                <FontAwesomeIcon icon={faFileArrowDown} />
+              </Anchor>
+            </Tooltip>
           </div>
         </Group>
       </Title>

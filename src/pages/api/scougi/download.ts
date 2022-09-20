@@ -34,15 +34,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   const pdfBuffer = Buffer.from(await mergedPDF.save())
 
-  res.writeHead(200, {
-    'Content-Type': 'application/pdf',
-    'Content-Length': pdfBuffer.byteLength,
-    'Content-Disposition': "attachment; filename=scougi.pdf"
-  })
-
-  const pdfStream = Readable.from(pdfBuffer)
-  await new Promise(function (resolve) {
-    pdfStream.pipe(res)
-    pdfStream.on('end', resolve)
-  })
+  res.setHeader('Content-Type', 'application/pdf');
+  res.setHeader('Content-Disposition', "attachment; filename=scougi.pdf");
+  res.status(200).send(pdfBuffer)
 }
