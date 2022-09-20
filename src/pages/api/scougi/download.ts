@@ -1,6 +1,5 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { PDFDocument } from "pdf-lib";
-import { log } from "next-axiom";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== "GET") {
@@ -25,7 +24,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   if (!pages) {
     return res.status(404).send({});
   }
-  log.info("Started downloading process", { id });
 
   const mergedPDF = await PDFDocument.create();
   for (const pageData of pages) {
@@ -34,7 +32,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     mergedPDF.addPage(page);
   }
 
-  log.info("Successfully combined PDF", { id });
   const pdfBuffer = Buffer.from(await mergedPDF.save());
 
   res.setHeader("Content-Type", "application/pdf");
