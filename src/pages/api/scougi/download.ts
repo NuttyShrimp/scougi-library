@@ -45,7 +45,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   log.info("Successfully combined PDF", { id });
 
+  const pdfReadBuffer = readFileSync(`${isProd ? "/tmp" : os.tmpdir()}/scougi.pdf`);
+
   res.setHeader("Content-Type", "application/pdf");
-  res.setHeader("Content-Disposition", "scougi.pdf");
-  res.status(200).send(readFileSync(`${isProd ? "/tmp" : os.tmpdir()}/scougi.pdf`));
+  // res.setHeader("Content-Disposition", "scougi.pdf");
+  return res.end(pdfReadBuffer);
 }
