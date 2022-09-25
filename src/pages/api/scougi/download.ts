@@ -42,17 +42,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       mergedPDF.addPage(page);
     }
     const pdfBytes = await mergedPDF.save();
-    const isProd = process.env.NODE_ENV === "production";
-    const pdfPath = path.join(isProd ? process.cwd() : os.tmpdir(), "scougi.pdf");
-    writeFileSync(pdfPath, pdfBytes);
-
     log.info("Successfully combined PDF", { id });
-
-    const pdfReadBuffer = readFileSync(pdfPath);
 
     res.setHeader("Content-Type", "application/pdf");
     // res.setHeader("Content-Disposition", "scougi.pdf");
-    return res.end(pdfReadBuffer);
+    return res.end(pdfBytes);
   } catch (e) {
     console.error(e);
     return res.setHeader("Content-Type", "application/json").status(500).json({
