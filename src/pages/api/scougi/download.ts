@@ -4,6 +4,7 @@ import { log } from "next-axiom";
 import prisma from "../../../lib/prisma";
 import { readFileSync, writeFileSync } from "fs";
 import * as os from "os";
+import path from "path";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   log.info("Received unchecked download request");
@@ -41,11 +42,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
   const pdfBytes = await mergedPDF.save();
   const isProd = process.env.NODE_ENV === "production";
-  writeFileSync(`${isProd ? "/tmp" : os.tmpdir()}/scougi.pdf`, pdfBytes);
+  const pdfPath = path.join(isProd ? process.cwd() : os.tmpdir(), "scougi.pdf");
+  writeFileSync(pdfPath, pdfBytes);
 
   log.info("Successfully combined PDF", { id });
 
-  const pdfReadBuffer = readFileSync(`${isProd ? "/tmp" : os.tmpdir()}/scougi.pdf`);
+  const pdfReadBuffer = readFileSync(pdfPath);
 
   res.setHeader("Content-Type", "application/pdf");
   // res.setHeader("Content-Disposition", "scougi.pdf");
