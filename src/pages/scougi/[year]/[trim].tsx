@@ -101,23 +101,6 @@ const ScougiDisplay: NextPage<ScougiProps> = props => {
     setDisablePadding(ref.state.scale <= 1);
   };
 
-  const downloadScougi = async () => {
-    const pdfBlob = await fetch(`/api/scougi/download?id=${props.scougi.id}`, {
-      method: "GET",
-    }).then(res => res.blob());
-    const url = window.URL.createObjectURL(pdfBlob);
-    const a = Object.assign(document.createElement("a"), {
-      href: url,
-      download: "scougi.pdf",
-      style: "display:none",
-    });
-    document.body.appendChild(a);
-
-    a.click();
-    URL.revokeObjectURL(url);
-    a.remove();
-  };
-
   useEffect(() => {
     pageCtx.openScougi(props.scougi.id, props.scougi.updatedAt, props.scougi.pages);
     return () => pageCtx.openScougi(0, "", 0);
@@ -138,25 +121,25 @@ const ScougiDisplay: NextPage<ScougiProps> = props => {
         </title>
       </Head>
       <Title order={4}>
-        {/*<Group position="apart">*/}
-        {/*  <div>*/}
-        <Link href="/">
-          <Anchor>
-            <FontAwesomeIcon icon={faArrowLeft} />
-          </Anchor>
-        </Link>
-        <span style={{ marginLeft: ".3vw" }}>
-          Scougi - {props.scougi.year} - {TrimesterNames[props.scougi.trim ?? 0]}
-        </span>
-        {/*</div>*/}
-        {/*<div>*/}
-        {/*  <Tooltip label='Download'>*/}
-        {/*    <Anchor onClick={downloadScougi}>*/}
-        {/*      <FontAwesomeIcon icon={faFileArrowDown} />*/}
-        {/*    </Anchor>*/}
-        {/*  </Tooltip>*/}
-        {/*</div>*/}
-        {/*</Group>*/}
+        <Group position="apart">
+          <div>
+            <Link href="/">
+              <Anchor>
+                <FontAwesomeIcon icon={faArrowLeft} />
+              </Anchor>
+            </Link>
+            <span style={{ marginLeft: ".3vw" }}>
+              Scougi - {props.scougi.year} - {TrimesterNames[props.scougi.trim ?? 0]}
+            </span>
+          </div>
+          <div>
+            <Tooltip label="Download">
+              <Anchor href={props.scougi.preview}>
+                <FontAwesomeIcon icon={faFileArrowDown} />
+              </Anchor>
+            </Tooltip>
+          </div>
+        </Group>
       </Title>
       <Divider mb={"md"} />
       <div className={classes.bookWrapper}>
@@ -285,6 +268,7 @@ export const getServerSideProps: GetServerSideProps<{
       pages: true,
       updatedAt: true,
       id: true,
+      preview: true,
     },
     where: {
       year: params.year,

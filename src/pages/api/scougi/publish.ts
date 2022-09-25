@@ -6,7 +6,6 @@ import { PDFDocument } from "pdf-lib";
 import asyncBatch from "async-batch";
 
 export default async function handle(req: NextApiRequest, res: NextApiResponse) {
-  const isProd = process.env.NODE_ENV === 'production'
   const { method } = req;
 
   if (method !== "POST") {
@@ -29,7 +28,12 @@ export default async function handle(req: NextApiRequest, res: NextApiResponse) 
     return;
   }
 
-  const masterPDFBytes = await fetch(url, {
+  const previewURL = new URL(url);
+  const previewSearchParams = previewURL.searchParams;
+  previewSearchParams.set("dl", "1");
+  previewURL.search = previewSearchParams.toString();
+
+  const masterPDFBytes = await fetch(previewURL.toString(), {
     method: "GET",
     headers: {
       "Content-Type": "application/pdf",
@@ -43,30 +47,34 @@ export default async function handle(req: NextApiRequest, res: NextApiResponse) 
       trim,
       year,
       pages: pageCount,
+      preview: url,
     },
   });
 
-
-  await asyncBatch(Array.from({ length: pageCount }), async (_: any, i: number) => {
-    const pagePDF = await PDFDocument.create();
-    const [page] = await pagePDF.copyPages(masterPDF, [i]);
-    pagePDF.addPage(page);
-    const pageData = await pagePDF.save();
-    await prisma.scougiPdfPage.create({
-      data: {
-        id: scougi.id,
-        data: Buffer.from(pageData),
-        number: i,
-      }
-    })
-  }, 5)
+  await asyncBatch(
+    Array.from({ length: pageCount }),
+    async (_: any, i: number) => {
+      const pagePDF = await PDFDocument.create();
+      const [page] = await pagePDF.copyPages(masterPDF, [i]);
+      pagePDF.addPage(page);
+      const pageData = await pagePDF.save();
+      await prisma.scougiPdfPage.create({
+        data: {
+          id: scougi.id,
+          data: Buffer.from(pageData),
+          number: i,
+        },
+      });
+    },
+    5
+  );
   // for (let i = 0; i < pageCount; i++) {
   //   const pagePDF = await PDFDocument.create();
   //   const [page] = await pagePDF.copyPages(masterPDF, [i]);
   //   pagePDF.addPage(page);
   //   const pageData = await pagePDF.save();
   //   await prisma.scougiPdfPage.create({
-  //     data:{ 
+  //     data:{
   //       id: scougi.id,
   //       data: Buffer.from(pageData),
   //       number: i,

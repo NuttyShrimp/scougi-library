@@ -25,7 +25,7 @@ declare interface ScougiAdminProps {
   // Record of years and trimester in set year where no scougi is uploaded
   years: Record<string, number[]>;
   currentYear: string;
-  published: Omit<DB.Scougi, "pages" | "updatedAt">[];
+  published: Omit<DB.Scougi, "pages" | "updatedAt" | "preview">[];
 }
 
 const Scougis: NextPage<ScougiAdminProps> = props => {
@@ -71,16 +71,16 @@ const Scougis: NextPage<ScougiAdminProps> = props => {
         icon: <FontAwesomeIcon icon={faExclamationTriangle} />,
       });
 
-      const resData = await res.json()
+      const resData = await res.json();
       if (resData.pages) {
         for (let i = 0; i < resData.pages; i++) {
           await fetch(`${origin}/api/scougi/page`, {
             method: "POST",
             body: JSON.stringify({
               pageNumber: i,
-              scougiId: resData.scougiId
+              scougiId: resData.scougiId,
             }),
-          })
+          });
         }
       }
       showNotification({
@@ -224,7 +224,7 @@ const Scougis: NextPage<ScougiAdminProps> = props => {
             appKey={"24ejhxqih5zow8j"}
             success={(files: Dropbox.File[]) => setSelectedFile(files[0])}
             multiselect={false}
-            linkType={"direct"}
+            linkType={"preview"}
             extensions={[".pdf"]}
           >
             <Button leftIcon={<FontAwesomeIcon icon={faFileUpload} />} loading={isUploading}>
