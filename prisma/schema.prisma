@@ -68,6 +68,7 @@ model Scougi {
   year          String
   trim          Int
   pages         Int
+  preview       String          @default("")
   hidden        Boolean         @default(false)
   updatedAt     DateTime        @default(now()) @updatedAt
   ScougiPage    ScougiPage[]

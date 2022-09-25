@@ -83,13 +83,6 @@ const ScougiDisplay: NextPage<ScougiProps> = props => {
     setPage(page - 1);
   };
 
-  const downloadScougi = async () => {
-    const pdfData = await fetch(`/api/scougi/download?id=${props.scougi.id}`, {
-      method: "GET",
-    }).then(res => res.blob());
-    const pdfBlob = new Blob([pdfData], { type: "application/pdf" });
-  };
-
   useEffect(() => {
     pageCtx.openScougi(props.scougi.id, props.scougi.updatedAt, props.scougi.pages);
     return () => pageCtx.openScougi(0, "", 0);
@@ -122,7 +115,7 @@ const ScougiDisplay: NextPage<ScougiProps> = props => {
           </div>
           <div>
             <Tooltip label="Download">
-              <Anchor href={`/api/scougi/download?id=${props.scougi.id}`}>
+              <Anchor href={props.scougi.preview}>
                 <FontAwesomeIcon icon={faFileArrowDown} />
               </Anchor>
             </Tooltip>
@@ -201,6 +194,7 @@ export const getServerSideProps: GetServerSideProps<{
       pages: true,
       updatedAt: true,
       id: true,
+      preview: true,
     },
     where: {
       year: params.year,

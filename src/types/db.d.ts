@@ -11,5 +11,6 @@ declare namespace DB {
     pages: number;
     hidden: boolean;
     updatedAt: string;
+    preview: string;
   }
 }
