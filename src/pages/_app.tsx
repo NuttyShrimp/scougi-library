@@ -10,10 +10,10 @@ import { ModalsProvider } from "@mantine/modals";
 import { NotificationsProvider } from "@mantine/notifications";
 import { AdminNavbar } from "../components/AdminNavbar";
 import { PageContextProvider } from "../lib/pageContext";
-export { reportWebVitals } from "next-axiom";
 
 import "@fortawesome/fontawesome-svg-core/styles.css";
 import { config } from "@fortawesome/fontawesome-svg-core";
+import Script from "next/script";
 config.autoAddCss = false; // Tell Font Awesome to skip adding the CSS automatically since it's being imported above
 
 function MyApp({ Component, pageProps: { session, ...pageProps } }: AppProps) {
@@ -25,6 +25,7 @@ function MyApp({ Component, pageProps: { session, ...pageProps } }: AppProps) {
           <meta name="description" content="Verzameling van alle beschibare scougis van Scouts en Gidsen Asse" />
           <link rel="shortcut icon" href="/favicon.ico" />
         </Head>
+        <Script data-domain="scougi-library.vercel.app" src="https://plausible.nuttyshrimp.me/js/plausible.js" />
         <MantineProvider withGlobalStyles withNormalizeCSS theme={theme}>
           <ModalsProvider>
             <NotificationsProvider>

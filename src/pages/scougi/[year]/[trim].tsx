@@ -1,4 +1,15 @@
-import { Divider, Title, Center, Anchor, NumberInput, Group, Text, Tooltip } from "@mantine/core";
+import {
+  Divider,
+  Title,
+  Center,
+  Anchor,
+  NumberInput,
+  Group,
+  Text,
+  Tooltip,
+  Stack,
+  SegmentedControl,
+} from "@mantine/core";
 import { GetServerSideProps, NextPage } from "next";
 import React, { forwardRef, useContext, useEffect, useRef, useState } from "react";
 import prisma from "../../../lib/prisma";
@@ -21,6 +32,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { useVwToPixel } from "src/hooks/useVwToPixel";
 import Link from "next/link";
+import { ReactZoomPanPinchRef, TransformComponent, TransformWrapper } from "react-zoom-pan-pinch";
 
 declare interface ScougiProps {
   scougi: Omit<DB.Scougi, "hidden">;
@@ -52,6 +64,8 @@ const ScougiDisplay: NextPage<ScougiProps> = props => {
   const flipBook = useRef<any>();
   const [page, setPage] = useState(0);
   const [isPortrait, setIsPortrait] = useState(false);
+  const [disablePadding, setDisablePadding] = useState(true);
+  const [mode, setMode] = useState<"scroll" | "zoom">("scroll");
   const [ref, { height }] = useMeasure();
   const minWidth = useVwToPixel(90);
 
@@ -83,16 +97,21 @@ const ScougiDisplay: NextPage<ScougiProps> = props => {
     setPage(page - 1);
   };
 
+  const checkZoom = (ref: ReactZoomPanPinchRef) => {
+    setDisablePadding(ref.state.scale <= 1);
+  };
+
   useEffect(() => {
     pageCtx.openScougi(props.scougi.id, props.scougi.updatedAt, props.scougi.pages);
     return () => pageCtx.openScougi(0, "", 0);
   }, []);
 
   useEffect(() => {
-    if (flipBook.current) {
-      setIsPortrait(flipBook.current.pageFlip()?.render?.orientation === "portrait");
-    }
-  }, [flipBook.current]);
+    // if (flipBook.current) {
+    //   setIsPortrait(flipBook.current.pageFlip()?.render?.orientation === "portrait");
+    // }
+    setIsPortrait(minWidth < 515);
+  }, [flipBook.current, minWidth]);
 
   return (
     <div className={classes.wrapper}>
@@ -127,54 +146,109 @@ const ScougiDisplay: NextPage<ScougiProps> = props => {
         <div className={[classes.btn, "left"].join(" ")} onClick={() => flipBook.current.pageFlip().flipPrev()}>
           <FontAwesomeIcon icon={faChevronLeft} />
         </div>
-        <div className={isPortrait ? "" : classes.book} ref={ref}>
-          <HTMLFlipBook
-            showCover
-            flippingTime={250}
-            width={515}
-            height={733}
-            size={"stretch"}
-            minWidth={minWidth < 515 ? minWidth : 280}
-            minHeight={minWidth * 1.414 < 733 ? minWidth : 400}
-            maxWidth={1000}
-            maxHeight={1498}
-            onFlip={onPage}
-            ref={flipBook}
-            mobileScrollSupport={false}
-            usePortrait={true}
-            // swipeDistance={isPortrait ? 15 : 30}
-          >
-            {getPages()}
-          </HTMLFlipBook>
-        </div>
+        {isPortrait ? (
+          <div ref={ref}>
+            <TransformWrapper
+              panning={{
+                disabled: !isPortrait || disablePadding,
+                velocityDisabled: true,
+              }}
+              wheel={{
+                disabled: !isPortrait || mode === "scroll",
+              }}
+              doubleClick={{
+                disabled: true,
+              }}
+              centerZoomedOut
+              onZoom={checkZoom}
+              onPinching={checkZoom}
+            >
+              <TransformComponent>
+                <div style={{ pointerEvents: mode === "scroll" ? "all" : "none" }}>
+                  <HTMLFlipBook
+                    showCover
+                    flippingTime={250}
+                    width={515}
+                    height={733}
+                    size={"stretch"}
+                    minWidth={minWidth < 515 ? minWidth : 280}
+                    minHeight={minWidth * 1.414 < 733 ? minWidth : 400}
+                    maxWidth={1000}
+                    maxHeight={1498}
+                    onFlip={onPage}
+                    ref={flipBook}
+                    mobileScrollSupport={false}
+                    usePortrait={isPortrait}
+                    swipeDistance={30}
+                  >
+                    {getPages()}
+                  </HTMLFlipBook>
+                </div>
+              </TransformComponent>
+            </TransformWrapper>
+          </div>
+        ) : (
+          <div className={classes.book} ref={ref}>
+            <HTMLFlipBook
+              showCover
+              flippingTime={250}
+              width={515}
+              height={733}
+              size={"stretch"}
+              minWidth={minWidth < 515 ? minWidth : 280}
+              minHeight={minWidth * 1.414 < 733 ? minWidth : 400}
+              maxWidth={1000}
+              maxHeight={1498}
+              onFlip={onPage}
+              ref={flipBook}
+              mobileScrollSupport={false}
+              usePortrait={isPortrait}
+              swipeDistance={30}
+            >
+              {getPages()}
+            </HTMLFlipBook>
+          </div>
+        )}
         <div className={[classes.btn, "right"].join(" ")} onClick={() => flipBook.current.pageFlip().flipNext()}>
           <FontAwesomeIcon icon={faChevronRight} />
         </div>
       </div>
       <Center>
-        <NumberInput
-          value={page + 1}
-          size="sm"
-          hideControls
-          onChange={goToPage}
-          width="1vw"
-          min={1}
-          max={props.scougi.pages}
-          step={isPortrait ? 1 : 2}
-          parser={value => value && value.replace(/\/\d*/g, "")}
-          formatter={value =>
-            !Number.isNaN(value ? parseInt(value) : NaN) ? `${value}/${props.scougi.pages}` : `1/${props.scougi.pages}`
-          }
-          inputMode={"numeric"}
-          variant={"unstyled"}
-          className={classes.pageInput}
-        />
-        {/*<p>/{props.scougi.pages}</p>*/}
+        <Stack spacing={"xs"}>
+          <NumberInput
+            value={page + 1}
+            size="sm"
+            hideControls
+            onChange={goToPage}
+            width="1vw"
+            min={1}
+            max={props.scougi.pages}
+            step={isPortrait ? 1 : 2}
+            parser={value => value && value.replace(/\/\d*/g, "")}
+            formatter={value =>
+              !Number.isNaN(value ? parseInt(value) : NaN)
+                ? `${value}/${props.scougi.pages}`
+                : `1/${props.scougi.pages}`
+            }
+            inputMode={"numeric"}
+            variant={"unstyled"}
+            className={classes.pageInput}
+          />
+          {isPortrait && (
+            <SegmentedControl
+              value={mode}
+              onChange={val => setMode(val as "scroll" | "zoom")}
+              data={[
+                { label: "Scroll", value: "scroll" },
+                { label: "Zoom", value: "zoom" },
+              ]}
+            />
+          )}
+        </Stack>
       </Center>
     </div>
   );
 };
-
 export const getServerSideProps: GetServerSideProps<{
   scougi: Omit<DB.Scougi, "hidden" | "updatedAt"> & {
     updatedAt: Date;
