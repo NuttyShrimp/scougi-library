@@ -1,4 +1,4 @@
-import { Divider, Title, Center, Loader } from "@mantine/core";
+import { Divider, Title, Center, Loader, Stack, Text } from "@mantine/core";
 import type { NextPage } from "next";
 import { YearShelf } from "../components/YearShelf";
 import { useQuery } from "react-query";
@@ -10,8 +10,34 @@ const Shelfs: NextPage = () => {
     }).then(res => res.json())
   )
 
-  if (error) return (<p>OOP</p>);
-  if (isLoading || !data) return (<p>Loading</p>)
+  if (error) return (
+    <div>
+      <Center>
+        <Stack>
+          <Center>
+            <Loader size={"xl"} />
+          </Center>
+          <Text>
+            Failed to load library. Please refresh
+          </Text>
+        </Stack>
+      </Center>
+     </div>
+  );
+  if (isLoading || !data) return (
+    <div>
+      <Center>
+        <Stack>
+          <Center>
+            <Loader size={"xl"} />
+          </Center>
+          <Text>
+            Loading...
+          </Text>
+        </Stack>
+      </Center>
+     </div>
+    )
   return (
     <div>
       {Object.keys(data).length === 0 ? (
