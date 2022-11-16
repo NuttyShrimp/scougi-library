@@ -9,29 +9,33 @@ import {
   faXmarkCircle,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { Button, Container, Divider, Group, Select, Title, Text, Table, Checkbox, Menu } from "@mantine/core";
-import { GetServerSideProps, NextPage } from "next";
-import prisma from "../../lib/prisma";
+import { Button, Container, Divider, Group, Select, Title, Text, Table, Checkbox, Menu, Loader, Center, Stack } from "@mantine/core";
+import { NextPage } from "next";
 import React, { useState } from "react";
 import { TrimesterNames } from "../../enums/trimesterNames";
 import { showNotification } from "@mantine/notifications";
 import { flushSync } from "react-dom";
 import { pdfjs } from "react-pdf";
 import { useRouter } from "next/router";
+import { useQuery } from "react-query";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
-declare interface ScougiAdminProps {
+declare interface ScougiAdminInfo {
   // Record of years and trimester in set year where no scougi is uploaded
   years: Record<string, number[]>;
   currentYear: string;
   published: Omit<DB.Scougi, "pages" | "updatedAt" | "preview">[];
 }
 
-const Scougis: NextPage<ScougiAdminProps> = props => {
+const Scougis: NextPage = () => {
+  const { error, isLoading, data } = useQuery<ScougiAdminInfo>('scougi-admin', () => {
+    return fetch("/api/scougi/get").then(res => res.json())
+  })
+
   const router = useRouter();
-  const [selectedYear, setSelectedYear] = useState(props.currentYear);
-  const [selectedTrim, setSelectedTrim] = useState(props.years[props.currentYear][0] ?? undefined);
+  const [selectedYear, setSelectedYear] = useState(data?.currentYear);
+  const [selectedTrim, setSelectedTrim] = useState(data?.years?.[data?.currentYear ?? "2022"]?.[0] ?? undefined);
   const [selectedFile, setSelectedFile] = useState<Dropbox.File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
 
@@ -182,8 +186,33 @@ const Scougis: NextPage<ScougiAdminProps> = props => {
 
   const handleYearChange = (year: string) => {
     setSelectedYear(year);
-    setSelectedTrim(props.years[year]?.at(0) ?? 0);
+    setSelectedTrim(data?.years[year]?.at(0) ?? 0);
   };
+
+  if (isLoading) {
+    return (
+      <Container>
+        <Center>
+          <Stack>
+            <Title order={6}>Loading scougis...</Title>
+            <Loader />
+          </Stack>
+        </Center>
+      </Container>
+    )
+  }
+
+  if (error || !data) {
+    return (
+      <Container>
+        <Center>
+          <Stack>
+            <Title order={6}>Failed to load data :(</Title>
+          </Stack>
+        </Center>
+      </Container>
+    )
+  }
 
   return (
     <Container>
@@ -192,17 +221,17 @@ const Scougis: NextPage<ScougiAdminProps> = props => {
         <Select
           label="Schooljaar"
           value={selectedYear}
-          onChange={v => handleYearChange(v ?? props.currentYear)}
-          data={Object.keys(props.years)}
+          onChange={v => handleYearChange(v ?? data.currentYear)}
+          data={Object.keys(data.years)}
           searchable
           creatable
           getCreateLabel={query => `+ Create ${query}`}
           disabled={isUploading}
           shouldCreate={q => {
-            return !props.years[q] && q.match(/^\d{4}-\d{4}$/);
+            return !data.years[q] && q.match(/^\d{4}-\d{4}$/);
           }}
           onCreate={q => {
-            props.years[q] = [0, 1, 2, 3];
+            data.years[q] = [0, 1, 2, 3];
             return q;
           }}
         />
@@ -213,11 +242,11 @@ const Scougis: NextPage<ScougiAdminProps> = props => {
           onChange={v => {
             setSelectedTrim(Number(v));
           }}
-          disabled={props.years[selectedYear].length === 0 || isUploading}
+          disabled={data.years?.[selectedYear ?? '2022']?.length === 0 || isUploading}
           data={TrimesterNames.map((t, i) => ({
             value: String(i),
             label: t,
-          })).filter((_, i) => props.years[selectedYear].includes(i))}
+          })).filter((_, i) => data.years?.[selectedYear ?? '2022']?.includes(i))}
         />
         <Group>
           <DropboxChooser
@@ -234,7 +263,7 @@ const Scougis: NextPage<ScougiAdminProps> = props => {
           {selectedFile && <Text>{selectedFile.name}</Text>}
         </Group>
         <Button
-          disabled={selectedYear.trim() === "" || selectedTrim === undefined || !selectedFile}
+          disabled={selectedTrim === undefined || !selectedFile || selectedYear?.trim() === ""}
           leftIcon={<FontAwesomeIcon icon={faPaperPlane} />}
           color={"green"}
           onClick={publishScougi}
@@ -255,7 +284,7 @@ const Scougis: NextPage<ScougiAdminProps> = props => {
           </tr>
         </thead>
         <tbody>
-          {props.published.map(s => (
+          {data.published.map(s => (
             <tr key={`${s.year}-${s.trim}`}>
               <td>{s.year}</td>
               <td>{TrimesterNames[s.trim]}</td>
@@ -289,49 +318,6 @@ const Scougis: NextPage<ScougiAdminProps> = props => {
       </Table>
     </Container>
   );
-};
-
-export const getServerSideProps: GetServerSideProps<ScougiAdminProps> = async () => {
-  const today = new Date();
-  const thisYear =
-    today.getMonth() < 8
-      ? `${today.getFullYear() - 1}-${today.getFullYear()}`
-      : `${today.getFullYear()}-${today.getFullYear() + 1}`;
-  const published = await prisma.scougi.findMany({
-    select: {
-      year: true,
-      trim: true,
-      id: true,
-      hidden: true,
-    },
-    orderBy: [
-      {
-        year: "desc",
-      },
-      {
-        trim: "desc",
-      },
-    ],
-  });
-
-  const years: Record<string, number[]> = {};
-  published.forEach(s => {
-    if (!years[s.year]) {
-      years[s.year] = [0, 1, 2, 3];
-    }
-    years[s.year] = years[s.year].filter(t => t !== s.trim);
-  });
-  if (!years[thisYear]) {
-    years[thisYear] = [0, 1, 2, 3];
-  }
-
-  return {
-    props: {
-      years,
-      currentYear: thisYear,
-      published,
-    },
-  };
 };
 
 export default Scougis;

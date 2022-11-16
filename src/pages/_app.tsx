@@ -10,6 +10,9 @@ import { ModalsProvider } from "@mantine/modals";
 import { NotificationsProvider } from "@mantine/notifications";
 import { AdminNavbar } from "../components/AdminNavbar";
 import { PageContextProvider } from "../lib/pageContext";
+import { QueryClient, QueryClientProvider } from "react-query";
+
+const queryClient = new QueryClient()
 
 import "@fortawesome/fontawesome-svg-core/styles.css";
 import { config } from "@fortawesome/fontawesome-svg-core";
@@ -27,28 +30,30 @@ function MyApp({ Component, pageProps: { session, ...pageProps } }: AppProps) {
         </Head>
         <Script data-domain="scougi-library.vercel.app" src="https://plausible.nuttyshrimp.me/js/plausible.js" />
         <MantineProvider withGlobalStyles withNormalizeCSS theme={theme}>
-          <ModalsProvider>
-            <NotificationsProvider>
-              <PageContextProvider>
-                <AppShell
-                  navbar={<AdminNavbar />}
-                  styles={() => ({
-                    main: {
-                      height: "min-content",
-                      minHeight: "unset",
-                    },
-                  })}
-                >
-                  <div style={{ minHeight: "100vh" }}>
-                    <RouteGuard>
-                      <Component {...pageProps} />
-                    </RouteGuard>
-                  </div>
-                  <Footer />
-                </AppShell>
-              </PageContextProvider>
-            </NotificationsProvider>
-          </ModalsProvider>
+          <QueryClientProvider client={queryClient}>
+            <ModalsProvider>
+              <NotificationsProvider>
+                <PageContextProvider>
+                  <AppShell
+                    navbar={<AdminNavbar />}
+                    styles={() => ({
+                      main: {
+                        height: "min-content",
+                        minHeight: "unset",
+                      },
+                    })}
+                  >
+                    <div style={{ minHeight: "100vh" }}>
+                      <RouteGuard>
+                        <Component {...pageProps} />
+                      </RouteGuard>
+                    </div>
+                    <Footer />
+                  </AppShell>
+                </PageContextProvider>
+              </NotificationsProvider>
+            </ModalsProvider>
+          </QueryClientProvider>
         </MantineProvider>
       </div>
     </SessionProvider>

@@ -1,37 +1,40 @@
 import { Divider, Title, Center, Loader } from "@mantine/core";
 import type { NextPage } from "next";
 import { YearShelf } from "../components/YearShelf";
-import { useEffect, useState } from "react";
+import { useQuery } from "react-query";
 
-const Home: NextPage = props => {
-  const [scougis, setScougis] = useState<Record<string, number[]>>({});
-
-  const fetchScougis = async () => {
-    const newScougis = await fetch("/api/scougi", {
+const Shelfs: NextPage = () => {
+  const { isLoading, error, data } = useQuery('repoData', () =>
+    fetch("/api/scougi", {
       method: "GET",
-    }).then(res => res.json());
-    setScougis(newScougis);
-  };
+    }).then(res => res.json())
+  )
 
-  useEffect(() => {
-    fetchScougis();
-  }, []);
+  if (error) return (<p>OOP</p>);
+  if (isLoading || !data) return (<p>Loading</p>)
+  return (
+    <div>
+      {Object.keys(data).length === 0 ? (
+        <Center>
+          <Loader size={"xl"} />
+        </Center>
+      ) : (
+        Object.keys(data)
+          .reverse()
+          .map(year => <YearShelf key={year} year={year} trims={data[year]} />)
+      )}
+    </div>
+  )
+}
 
+const Home: NextPage = () => {
   return (
     <div>
       <Center>
         <Title order={2}>Scougi - Scouts en Gidsen Asse</Title>
       </Center>
       <Divider my={"xs"} />
-      {Object.keys(scougis).length === 0 ? (
-        <Center>
-          <Loader size={"xl"} />
-        </Center>
-      ) : (
-        Object.keys(scougis)
-          .reverse()
-          .map(year => <YearShelf key={year} year={year} trims={scougis[year]} />)
-      )}
+      <Shelfs />
     </div>
   );
 };

@@ -9,30 +9,25 @@ import {
   Tooltip,
   Stack,
   SegmentedControl,
+  Loader,
 } from "@mantine/core";
-import { GetServerSideProps, NextPage } from "next";
+import {  NextPage } from "next";
 import React, { forwardRef, useContext, useEffect, useRef, useState } from "react";
-import prisma from "../../../lib/prisma";
-import HTMLFlipBook from "react-pageflip";
 import { useStyles } from "../../../styles/scougi.styles";
 import { TrimesterNames } from "../../../enums/trimesterNames";
-import { makeSerializable } from "../../../lib/util";
 import "react-pdf/dist/esm/Page/AnnotationLayer.css";
 import { pageContext } from "../../../lib/pageContext";
 import Head from "next/head";
 import { PdfPage } from "../../../components/PdfPage";
 import useMeasure from "react-use-measure";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faArrowLeft,
-  faChevronLeft,
-  faChevronRight,
-  faDownload,
-  faFileArrowDown,
-} from "@fortawesome/free-solid-svg-icons";
+import { ReactZoomPanPinchRef, TransformComponent, TransformWrapper } from "react-zoom-pan-pinch";
+import { faArrowLeft, faChevronLeft, faChevronRight, faFileArrowDown, faX } from "@fortawesome/free-solid-svg-icons";
 import { useVwToPixel } from "src/hooks/useVwToPixel";
 import Link from "next/link";
-import { ReactZoomPanPinchRef, TransformComponent, TransformWrapper } from "react-zoom-pan-pinch";
+import { useQuery } from "react-query";
+import { useRouter } from "next/router";
+import HTMLFlipBook from "react-pageflip";
 
 declare interface ScougiProps {
   scougi: Omit<DB.Scougi, "hidden">;
@@ -58,7 +53,13 @@ const ScougiPage = forwardRef<
   );
 });
 
-const ScougiDisplay: NextPage<ScougiProps> = props => {
+const ScougiDisplay: NextPage = () => {
+  const router = useRouter();
+  const { error, isLoading, data } = useQuery<ScougiProps>("/api/scougi/entry", () => {
+    return fetch(`/api/scougi/entry?trim=${router.query.trim}&year=${router.query.year}`).then(res => res.json())
+  }, {
+    enabled: !!router.query.trim && !!router.query.year
+  })
   const { classes } = useStyles();
   const pageCtx = useContext(pageContext);
   const flipBook = useRef<any>();
@@ -74,12 +75,13 @@ const ScougiDisplay: NextPage<ScougiProps> = props => {
   };
 
   const getPages = () => {
-    const pages = [];
-    for (let i = 0; i < props.scougi.pages; i++) {
+    const pages: JSX.Element[] = [];
+    if (!data?.scougi?.pages) return pages;
+    for (let i = 0; i < data.scougi.pages; i++) {
       pages.push(
         <ScougiPage
           key={`page-${i}`}
-          scougiId={props.scougi.id}
+          scougiId={data.scougi.id}
           pageNumber={i}
           currentPage={page}
           height={height}
@@ -92,7 +94,8 @@ const ScougiDisplay: NextPage<ScougiProps> = props => {
 
   const goToPage = (page: number | undefined) => {
     if (!page) return;
-    page = Math.max(1, Math.min(props.scougi.pages, page));
+    if (!data?.scougi?.pages) return;
+    page = Math.max(1, Math.min(data.scougi.pages, page));
     flipBook.current.pageFlip().turnToPage(page - 1);
     setPage(page - 1);
   };
@@ -102,7 +105,9 @@ const ScougiDisplay: NextPage<ScougiProps> = props => {
   };
 
   useEffect(() => {
-    pageCtx.openScougi(props.scougi.id, props.scougi.updatedAt, props.scougi.pages);
+    if (data) {
+      pageCtx.openScougi(data.scougi.id, data.scougi.updatedAt, data.scougi.pages);
+    }
     return () => pageCtx.openScougi(0, "", 0);
   }, []);
 
@@ -113,11 +118,45 @@ const ScougiDisplay: NextPage<ScougiProps> = props => {
     setIsPortrait(minWidth < 515);
   }, [flipBook.current, minWidth]);
 
+  if (isLoading || !data) {
+    return (
+      <div>
+        <Center>
+          <Stack>
+            <Center>
+              <Loader />
+            </Center>
+            <Text>Loading scougi...</Text>
+          </Stack>
+        </Center>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div>
+        <Center>
+          <Stack>
+            <Center>
+              <FontAwesomeIcon icon={faX} style={{
+                fontSize: '1.5rem',
+                color: "#ff0000",
+              }
+              } />
+            </Center>
+            <Text>Failed to load scougi :(</Text>
+          </Stack>
+        </Center>
+      </div>
+    )
+  }
+
   return (
     <div className={classes.wrapper}>
       <Head>
         <title>
-          {TrimesterNames[props.scougi.trim ?? 0]} - {props.scougi.year} - Scouts en Gidsen Asse
+          {TrimesterNames[data.scougi.trim ?? 0]} - {data.scougi.year} - Scouts en Gidsen Asse
         </title>
       </Head>
       <Title order={4}>
@@ -129,12 +168,12 @@ const ScougiDisplay: NextPage<ScougiProps> = props => {
               </Anchor>
             </Link>
             <span style={{ marginLeft: ".3vw" }}>
-              Scougi - {props.scougi.year} - {TrimesterNames[props.scougi.trim ?? 0]}
+              Scougi - {data.scougi.year} - {TrimesterNames[data.scougi.trim ?? 0]}
             </span>
           </div>
           <div>
             <Tooltip label="Download">
-              <Anchor href={props.scougi.preview}>
+              <Anchor href={data.scougi.preview}>
                 <FontAwesomeIcon icon={faFileArrowDown} />
               </Anchor>
             </Tooltip>
@@ -222,13 +261,13 @@ const ScougiDisplay: NextPage<ScougiProps> = props => {
             onChange={goToPage}
             width="1vw"
             min={1}
-            max={props.scougi.pages}
+            max={data.scougi.pages}
             step={isPortrait ? 1 : 2}
             parser={value => value && value.replace(/\/\d*/g, "")}
             formatter={value =>
               !Number.isNaN(value ? parseInt(value) : NaN)
-                ? `${value}/${props.scougi.pages}`
-                : `1/${props.scougi.pages}`
+                ? `${value}/${data.scougi.pages}`
+                : `1/${data.scougi.pages}`
             }
             inputMode={"numeric"}
             variant={"unstyled"}
@@ -248,40 +287,6 @@ const ScougiDisplay: NextPage<ScougiProps> = props => {
       </Center>
     </div>
   );
-};
-export const getServerSideProps: GetServerSideProps<{
-  scougi: Omit<DB.Scougi, "hidden" | "updatedAt"> & {
-    updatedAt: Date;
-  };
-}> = async ({ params }) => {
-  if (!params?.trim || !params?.year || Array.isArray(params.year) || isNaN(Number(params.trim)))
-    return {
-      props: {
-        scougi: { year: "", trim: "", pages: 0 },
-      },
-      notFound: true,
-    };
-  const scougi = await prisma.scougi.findFirst({
-    select: {
-      year: true,
-      trim: true,
-      pages: true,
-      updatedAt: true,
-      id: true,
-      preview: true,
-    },
-    where: {
-      year: params.year,
-      trim: Number(params.trim),
-    },
-  });
-  return {
-    props: {
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      scougi: makeSerializable(scougi!),
-    },
-    notFound: !scougi,
-  };
 };
 
 export default ScougiDisplay;
