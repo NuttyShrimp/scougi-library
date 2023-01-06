@@ -9,6 +9,14 @@ import path from "path";
 import { unstable_getServerSession } from "next-auth";
 import { authOptions } from "../auth/[...nextauth]";
 
+export const config = {
+    api: {
+        bodyParser: {
+            sizeLimit: '4mb' // Set desired value here
+        }
+    }
+}
+
 export default async function handle(req: NextApiRequest, res: NextApiResponse) {
   const { method } = req;
 
@@ -31,7 +39,10 @@ export default async function handle(req: NextApiRequest, res: NextApiResponse) 
       return res.status(404).send({});
     }
 
-    res.status(200).send(pageData?.data);
+    const pageu8Arr = new Uint8Array(atob(pageData.data).split("").map(function(c) {
+    return c.charCodeAt(0); }));
+
+    res.status(200).setHeader("Content-Type", "image/png").send(Buffer.from(pageu8Arr));
   } else {
     const isProd = process.env.NODE_ENV === "production";
     const session = await unstable_getServerSession(req, res, authOptions);
@@ -42,11 +53,12 @@ export default async function handle(req: NextApiRequest, res: NextApiResponse) 
     }
 
     const { pageNumber, scougiId } = JSON.parse(req.body);
-    const pageData = await db.selectFrom("ScougiPdfPage").selectAll().where("number", "=", pageNumber).where("id", "=", scougiId).executeTakeFirst();
-    if (!pageData) {
-      return res.status(404);
+    const pageData = await db.selectFrom("ScougiPdfPage").selectAll().where("id", "=", scougiId).where("number", "=", pageNumber).executeTakeFirst();
+    if (pageData === undefined || pageData?.data === undefined) {
+      res.status(400).send("missing data entry from body")
+      return;
     }
-    const page = new Uint8Array(pageData.data);
+    const page = pageData.data;
 
     writeFileSync(`${isProd ? "/tmp" : os.tmpdir()}/scougi-page-${pageNumber}.pdf`, page);
     const pagePNG = await new Promise<Buffer>(response => {
@@ -83,7 +95,7 @@ export default async function handle(req: NextApiRequest, res: NextApiResponse) 
     await db.insertInto("ScougiPage").values({
       number: pageNumber,
       id: scougiId,
-      data: pagePNG,
+      data: Buffer.from(pagePNG).toString("base64"),
     }).execute();
     res.status(200).end();
   }

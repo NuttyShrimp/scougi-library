@@ -17,13 +17,13 @@ declare interface ScougiTable {
 declare interface ScougiPageTable {
   number: number;
   id: number;
-  data: Buffer;
+  data: string;
 }
 
 declare interface ScougiPdfPageTable {
   number: number;
   id: number;
-  data: Buffer;
+  data: string;
 }
 
 declare interface DB {
@@ -34,10 +34,9 @@ declare interface DB {
 
 const db: Kysely<DB> = new Kysely<DB>({
   dialect: new PlanetScaleDialect({
-    url: process.env.DATABASE_URL,
-    // host: process.env.PLANETSCALE_DB_HOST,
-    // username: process.env.PLANETSCALE_DB_USERNAME,
-    // password: process.env.PLANETSCALE_DB_PASSWORD,
+    host: process.env.PLANETSCALE_DB_HOST,
+    username: process.env.PLANETSCALE_DB_USERNAME,
+    password: process.env.PLANETSCALE_DB_PASSWORD,
   }),
 })
 

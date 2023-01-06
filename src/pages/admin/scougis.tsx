@@ -9,7 +9,7 @@ import {
   faXmarkCircle,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { Button, Container, Divider, Group, Select, Title, Text, Table, Checkbox, Menu, Loader, Center, Stack } from "@mantine/core";
+import { Button, Container, Divider, Group, Select, Title, Text, Table, Checkbox, Menu, Loader, Center, Stack, Tooltip } from "@mantine/core";
 import { NextPage } from "next";
 import React, { useState } from "react";
 import { TrimesterNames } from "../../enums/trimesterNames";
@@ -18,6 +18,7 @@ import { flushSync } from "react-dom";
 import { pdfjs } from "react-pdf";
 import { useRouter } from "next/router";
 import { useQuery } from "react-query";
+import { PDFDocument } from "pdf-lib";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
@@ -76,16 +77,14 @@ const Scougis: NextPage = () => {
       });
 
       const resData = await res.json();
-      if (resData.pages) {
-        for (let i = 0; i < resData.pages; i++) {
-          await fetch(`${origin}/api/scougi/page`, {
-            method: "POST",
-            body: JSON.stringify({
-              pageNumber: i,
-              scougiId: resData.scougiId,
-            }),
-          });
-        }
+      for (let i = 0; i < resData.pages; i++) {
+        await fetch(`${origin}/api/scougi/page`, {
+          method: "POST",
+          body: JSON.stringify({
+            pageNumber: i,
+            scougiId: resData.scougiId,
+          }),
+        });
       }
       showNotification({
         title: `Successfully published a new scougi`,
@@ -215,7 +214,7 @@ const Scougis: NextPage = () => {
   }
 
   return (
-    <Container>
+    <Container size="lg">
       <Title order={3}>Upload new scougi</Title>
       <Group position="apart" align={"end"}>
         <Select
@@ -253,11 +252,11 @@ const Scougis: NextPage = () => {
             appKey={"24ejhxqih5zow8j"}
             success={(files: Dropbox.File[]) => setSelectedFile(files[0])}
             multiselect={false}
-            linkType={"preview"}
+            linkType={"direct"}
             extensions={[".pdf"]}
           >
             <Button leftIcon={<FontAwesomeIcon icon={faFileUpload} />} loading={isUploading}>
-              <div className="dropbox-button">Upload</div>
+              <div className="dropbox-button">Showed file</div>
             </Button>
           </DropboxChooser>
           {selectedFile && <Text>{selectedFile.name}</Text>}

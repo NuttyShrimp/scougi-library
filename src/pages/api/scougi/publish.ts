@@ -59,8 +59,7 @@ export default async function handle(req: NextApiRequest, res: NextApiResponse) 
     return;
   } 
   
-  await asyncBatch(
-    Array.from({ length: pageCount }),
+  const pageGeneration = Array.from({ length: pageCount }).fill("0").map(
     async (_: any, i: number) => {
       const pagePDF = await PDFDocument.create();
       const [page] = await pagePDF.copyPages(masterPDF, [i]);
@@ -68,12 +67,12 @@ export default async function handle(req: NextApiRequest, res: NextApiResponse) 
       const pageData = await pagePDF.save();
       await db.insertInto("ScougiPdfPage").values({
         id: Number(scougi.insertId),
-        data: Buffer.from(pageData),
+        data: Buffer.from(pageData).toString("base64"),
         number: i,
       }).execute();
-    },
-    5
+    }
   );
+  await Promise.all(pageGeneration)
 
   res.status(200).send({ success: true, scougiId: Number(scougi.insertId), pages: pageCount });
 }
