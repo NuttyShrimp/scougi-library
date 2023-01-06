@@ -58,7 +58,8 @@ export default async function handle(req: NextApiRequest, res: NextApiResponse) 
       res.status(400).send("missing data entry from body")
       return;
     }
-    const page = pageData.data;
+    const page = new Uint8Array(atob(pageData.data).split("").map(function(c) {
+    return c.charCodeAt(0); }));
 
     writeFileSync(`${isProd ? "/tmp" : os.tmpdir()}/scougi-page-${pageNumber}.pdf`, page);
     const pagePNG = await new Promise<Buffer>(response => {

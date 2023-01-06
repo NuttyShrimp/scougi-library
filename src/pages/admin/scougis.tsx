@@ -252,7 +252,7 @@ const Scougis: NextPage = () => {
             appKey={"24ejhxqih5zow8j"}
             success={(files: Dropbox.File[]) => setSelectedFile(files[0])}
             multiselect={false}
-            linkType={"direct"}
+            linkType={"preview"}
             extensions={[".pdf"]}
           >
             <Button leftIcon={<FontAwesomeIcon icon={faFileUpload} />} loading={isUploading}>
