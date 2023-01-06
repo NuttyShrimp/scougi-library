@@ -1,7 +1,7 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { unstable_getServerSession } from "next-auth";
 import { authOptions } from "../auth/[...nextauth]";
-import { prisma } from "../../../lib/prisma";
+import db from "../../../lib/kysely";
 
 export default async function handle(req: NextApiRequest, res: NextApiResponse) {
   const session = await unstable_getServerSession(req, res, authOptions);
@@ -22,22 +22,7 @@ export default async function handle(req: NextApiRequest, res: NextApiResponse) 
     today.getMonth() < 8
       ? `${today.getFullYear() - 1}-${today.getFullYear()}`
       : `${today.getFullYear()}-${today.getFullYear() + 1}`;
-  const published = await prisma.scougi.findMany({
-    select: {
-      year: true,
-      trim: true,
-      id: true,
-      hidden: true,
-    },
-    orderBy: [
-      {
-        year: "desc",
-      },
-      {
-        trim: "desc",
-      },
-    ],
-  });
+  const published = await db.selectFrom("Scougi").select(["year", "trim", "id", "hidden"]).orderBy("year", "desc").orderBy("trim", "desc").execute();
 
   const years: Record<string, number[]> = {};
   published.forEach(s => {

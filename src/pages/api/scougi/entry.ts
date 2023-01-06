@@ -1,4 +1,5 @@
 import { NextApiRequest, NextApiResponse } from "next";
+import db from "src/lib/kysely";
 import { makeSerializable } from "src/lib/util";
 import { prisma } from "../../../lib/prisma";
 
@@ -9,20 +10,8 @@ export default async function handle(req: NextApiRequest, res: NextApiResponse) 
     })
     return;
   }
-
-  const scougi = await prisma.scougi.findFirst({
-    select: {
-      year: true,
-      trim: true,
-      pages: true,
-      updatedAt: true,
-      id: true,
-    },
-    where: {
-      year: req.query.year,
-      trim: Number(req.query.trim),
-    },
-  });
+  
+  const scougi = await db.selectFrom("Scougi").select(["year", "trim", "pages", "preview", "updatedAt", "id"]).where("year", "=", req.query.year).where("trim", "=", Number(req.query.trim)).executeTakeFirst();
   if (!scougi) {
     res.status(404).json({});
     return;

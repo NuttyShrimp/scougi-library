@@ -5,10 +5,11 @@ import { useQuery } from "react-query"
 declare interface UserListProps {
   entry: FC<{ user: DB.User }>
   approved: boolean
+  storeKey: string;
 }
 
-export const UserList: FC<UserListProps> = ({ entry, approved }) => {
-  const { error, isLoading, data: users } = useQuery<DB.User[]>('not-approved-users', () => {
+export const UserList: FC<UserListProps> = ({ entry, approved, storeKey }) => {
+  const { error, isLoading, data: users } = useQuery<DB.User[]>(storeKey, () => {
     return fetch(`/api/users/get?approved=${approved}`).then(res => res.json())
   })
 

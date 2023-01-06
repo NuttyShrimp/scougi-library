@@ -59,6 +59,6 @@ const UserEntry: FC<{ user: DB.User }> = ({ user }) => {
   )
 }
 
-const approvedUsers: NextPage = () => <UserList entry={UserEntry} approved={true} />
+const approvedUsers: NextPage = () => <UserList entry={UserEntry} approved={true} storeKey={"approved-users"}/>
 
 export default approvedUsers
