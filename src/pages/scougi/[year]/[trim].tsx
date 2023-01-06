@@ -6,12 +6,13 @@ import {
   NumberInput,
   Group,
   Text,
-  Tooltip,
   Stack,
   SegmentedControl,
   Loader,
+  Flex,
+  Alert,
 } from "@mantine/core";
-import {  NextPage } from "next";
+import { NextPage } from "next";
 import React, { forwardRef, useContext, useEffect, useRef, useState } from "react";
 import { useStyles } from "../../../styles/scougi.styles";
 import { TrimesterNames } from "../../../enums/trimesterNames";
@@ -22,7 +23,7 @@ import { PdfPage } from "../../../components/PdfPage";
 import useMeasure from "react-use-measure";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { ReactZoomPanPinchRef, TransformComponent, TransformWrapper } from "react-zoom-pan-pinch";
-import { faArrowLeft, faChevronLeft, faChevronRight, faFileArrowDown, faX } from "@fortawesome/free-solid-svg-icons";
+import { faArrowLeft, faChevronLeft, faChevronRight, faCircleInfo, faFileArrowDown, faX } from "@fortawesome/free-solid-svg-icons";
 import { useVwToPixel } from "src/hooks/useVwToPixel";
 import Link from "next/link";
 import { useQuery } from "react-query";
@@ -42,7 +43,7 @@ const ScougiPage = forwardRef<
   useEffect(() => {
     setShouldRender(
       (currentPage <= pageNumber && currentPage + preload >= pageNumber) ||
-        (currentPage >= pageNumber && currentPage - preload <= pageNumber)
+      (currentPage >= pageNumber && currentPage - preload <= pageNumber)
     );
   }, [currentPage, pageNumber]);
 
@@ -172,15 +173,18 @@ const ScougiDisplay: NextPage = () => {
             </span>
           </div>
           <div>
-            <Tooltip label="Download">
-              <Anchor href={data.scougi.preview}>
-                <FontAwesomeIcon icon={faFileArrowDown} />
-              </Anchor>
-            </Tooltip>
+            <Anchor href={data.scougi.preview} target={"_blank"}>
+              <Flex>
+                <Text color={"white"} pr={5}>Downloaden</Text><FontAwesomeIcon icon={faFileArrowDown} />
+              </Flex>
+            </Anchor>
           </div>
         </Group>
       </Title>
-      <Divider mb={"md"} />
+      <Divider mb={"xs"} />
+      <Alert icon={<FontAwesomeIcon icon={faCircleInfo}/>} color="blue" mb={"xs"}>
+        Wil je inzoomen, op de links klikken of gewoon weg de pdf downloaden? Gebruik de knop in de rechter boven hoek
+      </Alert>
       <div className={classes.bookWrapper}>
         <div className={[classes.btn, "left"].join(" ")} onClick={() => flipBook.current.pageFlip().flipPrev()}>
           <FontAwesomeIcon icon={faChevronLeft} />
@@ -208,7 +212,7 @@ const ScougiDisplay: NextPage = () => {
                     showCover
                     flippingTime={250}
                     width={515}
-                    height={733}
+                    height={734}
                     size={"stretch"}
                     minWidth={minWidth < 515 ? minWidth : 280}
                     minHeight={minWidth * 1.414 < 733 ? minWidth : 400}
