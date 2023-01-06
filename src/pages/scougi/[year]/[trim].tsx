@@ -183,7 +183,7 @@ const ScougiDisplay: NextPage = () => {
       </Title>
       <Divider mb={"xs"} />
       <Alert icon={<FontAwesomeIcon icon={faCircleInfo}/>} color="blue" mb={"xs"}>
-        Wil je inzoomen, op de links klikken of gewoon weg de pdf downloaden? Gebruik de knop in de rechter boven hoek
+        Wil je inzoomen, op de links klikken of de pdf downloaden? Gebruik de knop in de rechterbovenhoek
       </Alert>
       <div className={classes.bookWrapper}>
         <div className={[classes.btn, "left"].join(" ")} onClick={() => flipBook.current.pageFlip().flipPrev()}>
