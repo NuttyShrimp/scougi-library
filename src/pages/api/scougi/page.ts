@@ -1,5 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import prisma from "../../../lib/prisma";
+// import prisma from "../../../lib/prisma";
+import db from '../../../lib/kysely';
 // @ts-ignore
 import gs from "gs";
 import { readFileSync, writeFileSync } from "fs";
@@ -25,12 +26,7 @@ export default async function handle(req: NextApiRequest, res: NextApiResponse) 
       return;
     }
 
-    const pageData = await prisma.scougiPage.findFirst({
-      select: {
-        data: true,
-      },
-      where: { number: Number(page), id: Number(id) },
-    });
+    const pageData = await db.selectFrom("ScougiPage").select(["data"]).where("number", "=", Number(page)).where("id", "=", Number(id)).executeTakeFirst();
     if (!pageData?.data) {
       return res.status(404).send({});
     }
@@ -46,12 +42,7 @@ export default async function handle(req: NextApiRequest, res: NextApiResponse) 
     }
 
     const { pageNumber, scougiId } = JSON.parse(req.body);
-    const pageData = await prisma.scougiPdfPage.findFirst({
-      where: {
-        number: pageNumber,
-        id: scougiId,
-      },
-    });
+    const pageData = await db.selectFrom("ScougiPdfPage").selectAll().where("number", "=", pageNumber).where("id", "=", scougiId).executeTakeFirst();
     if (!pageData) {
       return res.status(404);
     }
@@ -89,13 +80,11 @@ export default async function handle(req: NextApiRequest, res: NextApiResponse) 
           response(imageBuffer);
         });
     });
-    await prisma.scougiPage.create({
-      data: {
-        number: pageNumber,
-        id: scougiId,
-        data: pagePNG,
-      },
-    });
+    await db.insertInto("ScougiPage").values({
+      number: pageNumber,
+      id: scougiId,
+      data: pagePNG,
+    }).execute();
     res.status(200).end();
   }
 }

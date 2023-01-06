@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import prisma from "../../../lib/prisma";
+import db from "../../../lib/kysely";
 import { makeSerializable } from "../../../lib/util";
 
 export default async function handle(req: NextApiRequest, res: NextApiResponse) {
@@ -11,13 +11,7 @@ export default async function handle(req: NextApiRequest, res: NextApiResponse) 
     return;
   }
 
-  const scougis = await prisma.scougi.findMany({
-    select: {
-      id: true,
-      trim: true,
-      year: true,
-    },
-  });
+  const scougis = await db.selectFrom("Scougi").select(['id', 'trim', "year"]).execute();
   const filteredScougis: Record<string, number[]> = {};
   scougis.forEach(s => {
     if (!filteredScougis[s.year]) {

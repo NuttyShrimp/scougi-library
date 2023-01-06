@@ -1,7 +1,7 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { unstable_getServerSession } from "next-auth";
 import { authOptions } from "../auth/[...nextauth]";
-import prisma from "../../../lib/prisma";
+import db from "../../../lib/kysely";
 import { PDFDocument } from "pdf-lib";
 import asyncBatch from "async-batch";
 
@@ -42,15 +42,23 @@ export default async function handle(req: NextApiRequest, res: NextApiResponse) 
   const masterPDF = await PDFDocument.load(masterPDFBytes);
   const pageCount = masterPDF.getPageCount();
 
-  const scougi = await prisma.scougi.create({
-    data: {
-      trim,
-      year,
-      pages: pageCount,
-      preview: url,
-    },
-  });
-
+  const scougi = await db.insertInto("Scougi").values({
+    trim,
+    year,
+    pages: pageCount,
+    preview: url,
+    hidden: false,
+    updatedAt: new Date(),
+  }).executeTakeFirst();
+  if (scougi?.numInsertedOrUpdatedRows === undefined || scougi?.numInsertedOrUpdatedRows <1) {
+    res.status(500).send({ message: "Failed to save scougi in database" });
+    return;
+  } 
+  if (scougi?.insertId === undefined) {
+    res.status(500).send({ message: "Failed to save scougi in database (insertId)" });
+    return;
+  } 
+  
   await asyncBatch(
     Array.from({ length: pageCount }),
     async (_: any, i: number) => {
@@ -58,29 +66,14 @@ export default async function handle(req: NextApiRequest, res: NextApiResponse) 
       const [page] = await pagePDF.copyPages(masterPDF, [i]);
       pagePDF.addPage(page);
       const pageData = await pagePDF.save();
-      await prisma.scougiPdfPage.create({
-        data: {
-          id: scougi.id,
-          data: Buffer.from(pageData),
-          number: i,
-        },
-      });
+      await db.insertInto("ScougiPdfPage").values({
+        id: Number(scougi.insertId),
+        data: Buffer.from(pageData),
+        number: i,
+      }).execute();
     },
     5
   );
-  // for (let i = 0; i < pageCount; i++) {
-  //   const pagePDF = await PDFDocument.create();
-  //   const [page] = await pagePDF.copyPages(masterPDF, [i]);
-  //   pagePDF.addPage(page);
-  //   const pageData = await pagePDF.save();
-  //   await prisma.scougiPdfPage.create({
-  //     data:{
-  //       id: scougi.id,
-  //       data: Buffer.from(pageData),
-  //       number: i,
-  //     }
-  //   })
-  // }
 
-  res.status(200).send({ success: true, scougiId: scougi.id, pages: pageCount });
+  res.status(200).send({ success: true, scougiId: Number(scougi.insertId), pages: pageCount });
 }
