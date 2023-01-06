@@ -8,7 +8,7 @@ declare interface UserListProps {
 }
 
 export const UserList: FC<UserListProps> = ({ entry, approved }) => {
-  const { error, isLoading, data: users } = useQuery<DB.User[]>('approved-users', () => {
+  const { error, isLoading, data: users } = useQuery<DB.User[]>('not-approved-users', () => {
     return fetch(`/api/users/get?approved=${approved}`).then(res => res.json())
   })
 
