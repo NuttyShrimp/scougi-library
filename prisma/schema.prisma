@@ -1,0 +1,67 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider     = "mysql"
+  url          = env("DATABASE_URL")
+  relationMode = "prisma"
+}
+
+// region Lucia-auth
+model User {
+  id        String    @id
+  dropboxId String    @unique
+  email     String    @unique
+  name      String
+  approved  Boolean   @default(false)
+  sessions  Session[]
+}
+
+model Session {
+  id        String   @id
+  userId    String
+  expiresAt DateTime
+  user      User     @relation(references: [id], fields: [userId], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+// endregion
+
+model Scougi {
+  id            Int             @id @default(autoincrement())
+  year          String
+  trim          Int
+  pages         Int
+  preview       String          @default("")
+  hidden        Boolean         @default(false)
+  updatedAt     DateTime        @default(now()) @updatedAt
+  ScougiPage    ScougiPage[]
+  ScougiPdfPage ScougiPdfPage[]
+
+  @@unique([year, trim])
+}
+
+model ScougiPage {
+  number Int
+  id     Int
+  data   String
+  scougi Scougi @relation(fields: [id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@id([number, id])
+  @@index([id])
+}
+
+model ScougiPdfPage {
+  number Int
+  id     Int
+  data   String
+  scougi Scougi @relation(fields: [id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@id([number, id])
+  @@index([id])
+}
