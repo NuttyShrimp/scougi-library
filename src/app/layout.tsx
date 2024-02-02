@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
+import { HTMLProvider } from "@/components/providers/HTMLProvider";
+import { Footer } from "@/components/Footer";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Scougi Library",
+  title: "Scougi - Scouts en Gidsen Asse",
   description: "Scougi verzameling voor scouts & gidsen Asse",
 };
 
@@ -15,8 +17,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className={inter.className}>{children}</body>
-    </html>
+    <HTMLProvider>
+      <body className={`${inter.className} prose !max-w-full !w-screen min-h-screen flex flex-col justify-between`}>
+        <main className='grow'>
+          {children}
+        </main>
+        <Footer />
+      </body>
+    </HTMLProvider>
   );
 }

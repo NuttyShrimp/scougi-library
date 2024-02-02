@@ -1,12 +1,18 @@
 import { Lucia } from "lucia";
 import { PlanetScaleAdapter } from "@lucia-auth/adapter-mysql";
-import { db } from "./db";
 import { cookies } from "next/headers";
 import { cache } from "react";
 import { Dropbox } from "arctic";
 
 import type { Session, User } from "lucia";
 import type { User as DbUser } from "@prisma/client";
+import { connect } from "@planetscale/database";
+
+const db = connect({
+  host: process.env.PLANETSCALE_DB_HOST,
+  username: process.env.PLANETSCALE_DB_USERNAME,
+  password: process.env.PLANETSCALE_DB_PASSWORD,
+})
 
 const adapter = new PlanetScaleAdapter(db, {
   user: "user",
@@ -63,3 +69,4 @@ export const validateRequest = cache(
 );
 
 export const dropbox = new Dropbox(process.env.DROPBOX_CLIENT_ID!, process.env.DROPBOX_CLIENT_SECRET!, process.env.DROPBOX_REDIRECT!)
+

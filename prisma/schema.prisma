@@ -33,15 +33,14 @@ model Session {
 // endregion
 
 model Scougi {
-  id            Int             @id @default(autoincrement())
-  year          String
-  trim          Int
-  pages         Int
-  preview       String          @default("")
-  hidden        Boolean         @default(false)
-  updatedAt     DateTime        @default(now()) @updatedAt
-  ScougiPage    ScougiPage[]
-  ScougiPdfPage ScougiPdfPage[]
+  id         Int          @id @default(autoincrement())
+  year       String
+  trim       Int
+  pages      Int
+  preview    String       @default("")
+  hidden     Boolean      @default(false)
+  updatedAt  DateTime     @default(now()) @updatedAt
+  ScougiPage ScougiPage[]
 
   @@unique([year, trim])
 }
@@ -49,17 +48,7 @@ model Scougi {
 model ScougiPage {
   number Int
   id     Int
-  data   String
-  scougi Scougi @relation(fields: [id], references: [id], onDelete: Cascade, onUpdate: Cascade)
-
-  @@id([number, id])
-  @@index([id])
-}
-
-model ScougiPdfPage {
-  number Int
-  id     Int
-  data   String
+  data   Bytes
   scougi Scougi @relation(fields: [id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   @@id([number, id])
