@@ -16,7 +16,6 @@ const Autocomplete = (props: Props) => {
   const [open, setOpen] = useState(false);
   return (
     <div
-      // use classnames here to easily toggle dropdown open 
       className={`dropdown not-prose ${open ? "dropdown-open" : ""}`}
       ref={ref}
     >

@@ -1,6 +1,5 @@
-import { DownloadBtn } from "@/components/DownloadBtn";
+import { MovablePage } from "@/components/MovablePage";
 import { PageFlipper } from "@/components/PageFlipper";
-import { ScougiPage } from "@/components/ScougiPage";
 import { TrimesterNames } from "@/enums/trimesterNames";
 import db from "@/lib/db";
 import { base64ToUint8Array } from "@/lib/pdf";
@@ -16,7 +15,7 @@ export default async function Page({ params }: { params: { year: string; trim: n
 
   const scougiPages = await db.selectFrom("ScougiPage").selectAll().orderBy("number").where('id', "=", scougi.id).execute();
 
-  const pageComponents = await Promise.all(scougiPages.map(p => <ScougiPage data={base64ToUint8Array(p.data)} key={p.id} />));
+  const pageComponents = await Promise.all(scougiPages.map(p => <MovablePage data={base64ToUint8Array(p.data)} key={p.id} />));
 
   return (
     <div className='w-screen'>

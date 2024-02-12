@@ -1,7 +1,7 @@
 'use client';
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import AutoComplete from "./AutoComplete"
-import { TrimesterNames } from "@/enums/trimesterNames";
+import { TrimOptions, TrimesterNames } from "@/enums/trimesterNames";
 import { FileUp, Send } from 'lucide-react';
 import DropboxChooser from "./DropboxChooser";
 import { PDFDocument } from "pdf-lib";
@@ -15,11 +15,8 @@ export const ScougiUploader = (props: { years: Record<string, number[]> }) => {
   const [processing, setProcessing] = useState(false);
 
   const trimOptions = useMemo(() =>
-    TrimesterNames.map((t, i) => ({
-      value: String(i),
-      label: t,
-    })).filter((_, i) => props.years?.[yearValue ?? '2022-2023']?.includes(i))
-    , [yearValue, props.years]);
+    TrimOptions.filter((_, i) => props.years?.[yearValue ?? '2022-2023']?.includes(i) ?? true)
+  , [yearValue, props.years]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
