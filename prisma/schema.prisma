@@ -48,7 +48,7 @@ model Scougi {
 model ScougiPage {
   number Int
   id     Int
-  data   Bytes
+  data   String @db.LongText
   scougi Scougi @relation(fields: [id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   @@id([number, id])

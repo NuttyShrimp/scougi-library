@@ -1,13 +1,12 @@
 import { validateRequest } from "@/lib/auth";
 import db from "@/lib/db";
 
-// year parameter is actually the scougi id
 export async function POST(request: Request, { params }: { params: { year: string; trim: number; page: number } }): Promise<Response> {
   // TODO: remove when auth works
   // const { user } = await validateRequest();
   // if (!user) return new Response(null, { status: 401 });
 
-  const data = await request.arrayBuffer();
+  const data = await request.text();
 
   const scougi = await db.selectFrom("Scougi").selectAll().where("year", "=", params.year).where("trim", "=", Number(params.trim)).executeTakeFirst();
 
@@ -19,9 +18,9 @@ export async function POST(request: Request, { params }: { params: { year: strin
 
   db.insertInto("ScougiPage").values({
     id: scougi.id,
-    number: Number(params.year),
-    data: Buffer.from(data)
-  });
+    number: Number(params.page),
+    data,
+  }).execute();
 
   return new Response(null, {
     status: 200,

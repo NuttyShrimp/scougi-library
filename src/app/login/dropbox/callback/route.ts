@@ -47,7 +47,7 @@ export async function GET(request: Request): Promise<Response> {
       email: user.email,
       name: `${user.given_name} ${user.family_name}`,
       approved: false
-    })
+    }).execute();
     const session = await lucia.createSession(userId, {});
     const sessionCookie = lucia.createSessionCookie(session.id);
     cookies().set(sessionCookie.name, sessionCookie.value, sessionCookie.attributes);

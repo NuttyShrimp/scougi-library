@@ -30,15 +30,23 @@ export const splitDocToPages = async (doc: PDFDocument): Promise<Uint8Array[]> =
 };
 
 export const uploadPage = async (year: string, trim: number, pageNr: number, pdf: Uint8Array) => {
+  const string = pdf.reduce((data, byte) => {
+    return data + String.fromCharCode(byte)
+  }, '')
+  const b64encoded = btoa(string);
+
   const res = await fetch(`/scougi/${year}/${trim}/${pageNr}`, {
     method: "POST",
-    body: pdf.buffer,
-    headers: {
-      "Content-Type": "application/pdf",
-    }
+    body: b64encoded
   });
   if (!res.ok) {
     return false;
   }
   return true;
 }
+
+export const base64ToUint8Array = (base64: string): Uint8Array => {
+  // const binaryString = atob(base64);
+  // return Uint8Array.from(binaryString, (char) => char.charCodeAt(0));
+  return new Uint8Array(atob(base64).split("").map(c => c.charCodeAt(0)));
+};

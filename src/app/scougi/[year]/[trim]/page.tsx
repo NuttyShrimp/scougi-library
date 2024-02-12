@@ -1,6 +1,11 @@
+import { DownloadBtn } from "@/components/DownloadBtn";
+import { PageFlipper } from "@/components/PageFlipper";
+import { ScougiPage } from "@/components/ScougiPage";
 import { TrimesterNames } from "@/enums/trimesterNames";
 import db from "@/lib/db";
-import { ArrowLeft, FileDownIcon } from "lucide-react";
+import { base64ToUint8Array } from "@/lib/pdf";
+import { ArrowLeft } from "lucide-react";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 
 export default async function Page({ params }: { params: { year: string; trim: number; } }) {
@@ -8,23 +13,26 @@ export default async function Page({ params }: { params: { year: string; trim: n
   if (!scougi) {
     return redirect("/404");
   }
+
+  const scougiPages = await db.selectFrom("ScougiPage").selectAll().orderBy("number").where('id', "=", scougi.id).execute();
+
+  const pageComponents = await Promise.all(scougiPages.map(p => <ScougiPage data={base64ToUint8Array(p.data)} key={p.id} />));
+
   return (
     <div className='w-screen'>
       <div className="border-b-1 m-2 flex justify-between items-center">
         <div className="flex gap-2 items-center">
-          <ArrowLeft className='cursor-pointer' />
+          <Link href="/">
+            <ArrowLeft className='cursor-pointer' />
+          </Link>
           <span className="font-bold">
             Scougi - {scougi.year} - {TrimesterNames[scougi.trim]}
           </span>
         </div>
-        <div className="flex gap-2 items-center cursor-pointer">
-          <FileDownIcon />
-          <span className="font-bold">
-            Download
-          </span>
-        </div>
+        {/* <DownloadBtn data={base64ToUint8Array(scougiPages[0].data)} /> */}
       </div>
-      <div className='container'>
+      <div className='container mx-auto'>
+        <PageFlipper pages={pageComponents} />
       </div>
     </div>
   )

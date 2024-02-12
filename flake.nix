@@ -19,7 +19,7 @@
       in
       with pkgs; {
         devShells.default = pkgs.devshell.mkShell {
-          packages = [ nodejs nodePackages.pnpm nodePackages.prisma ];
+          packages = [ nodejs nodePackages.pnpm nodePackages.prisma cairo pango libpng pkg-config librsvg];
           env = [
             # {
             #   name = "PRISMA_MIGRATION_ENGINE_BINARY";
