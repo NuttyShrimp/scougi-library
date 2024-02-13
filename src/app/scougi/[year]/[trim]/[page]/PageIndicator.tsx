@@ -18,11 +18,11 @@ export const PageIndicator = ({ year, trim, page, totalPages }: { year: string; 
   }
 
   return (
-    <div className="flex gap-2">
-      <p className="cursor-pointer hover:bg-gray-300 rounded-full w-8 flex items-center justify-center">
+    <div className="flex gap-2 not-prose mt-4">
+      <p className={`btn btn-ghost btn-circle btn-sm ${page === 1 ? 'btn-disabled' : ''}`}>
         <ChevronsLeft height={28} onClick={() => pushPage(Math.max(1, page - 10))} />
       </p>
-      <p className="cursor-pointer hover:bg-gray-300 rounded-full w-8 flex items-center justify-center">
+      <p className={`btn btn-ghost btn-circle btn-sm ${page === 1 ? 'btn-disabled' : ''}`}>
         <ChevronLeft height={28} onClick={() => pushPage(Math.max(1, page - 1))} />
       </p>
       <p className="min-w-16 text-center">
@@ -38,10 +38,10 @@ export const PageIndicator = ({ year, trim, page, totalPages }: { year: string; 
           onBlur={updatePageFromInput}
         /> / {totalPages}
       </p>
-      <p className="cursor-pointer hover:bg-gray-300 rounded-full w-8 flex items-center justify-center">
+      <p className={`btn btn-ghost btn-circle btn-sm ${page === totalPages ? 'btn-disabled' : ''}`}>
         <ChevronRight height={28} onClick={() => pushPage(Math.min(totalPages, page + 1))} />
       </p>
-      <p className="cursor-pointer hover:bg-gray-300 rounded-full w-8 flex items-center justify-center">
+      <p className={`btn btn-ghost btn-circle btn-sm ${page === totalPages ? 'btn-disabled' : ''}`}>
         <ChevronsRight height={28} onClick={() => pushPage(Math.min(totalPages, page + 10))} />
       </p>
     </div>
