@@ -1,8 +1,6 @@
-import { MovablePage } from "@/components/MovablePage";
 import { PageFlipper } from "@/components/PageFlipper";
 import { TrimesterNames } from "@/enums/trimesterNames";
 import db from "@/lib/db";
-import { base64ToUint8Array } from "@/lib/pdf";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -14,8 +12,6 @@ export default async function Page({ params }: { params: { year: string; trim: n
   }
 
   const scougiPages = await db.selectFrom("ScougiPage").selectAll().orderBy("number").where('id', "=", scougi.id).execute();
-
-  const pageComponents = await Promise.all(scougiPages.map(p => <MovablePage data={base64ToUint8Array(p.data)} key={p.id} />));
 
   return (
     <div className='w-screen'>
@@ -31,7 +27,7 @@ export default async function Page({ params }: { params: { year: string; trim: n
         {/* <DownloadBtn data={base64ToUint8Array(scougiPages[0].data)} /> */}
       </div>
       <div className='container mx-auto'>
-        <PageFlipper pages={pageComponents} />
+        <PageFlipper pages={scougiPages} />
       </div>
     </div>
   )

@@ -1,8 +1,8 @@
 'use client'
 import { TransformComponent, TransformWrapper } from "react-zoom-pan-pinch";
-import { ScougiPage } from "./ScougiPage";
+import ScougiPage from "./ScougiPage";
 
-export const MovablePage = (props: { data: number[]; scaleOverwrite?: number }) => {
+export const MovablePage = (props: { data: string; scaleOverwrite?: number }) => {
   return (
     <TransformWrapper
       wheel={{

@@ -1,15 +1,17 @@
 "use client";
+import { ScougiPage } from "@prisma/client";
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
 import { useMemo, useState } from "react";
+import { MovablePage } from "./MovablePage";
 
-export const PageFlipper = (props: { pages: JSX.Element[]}) => {
+export const PageFlipper = (props: { pages: ScougiPage[]}) => {
   const [page, setPage] = useState(0);
   const selectedPage = useMemo(() => props.pages[page], [page, props.pages]);
 
   return (
     <div className="flex flex-col items-center">
       <div className="py-4 h-[80vh] sm:w-[80vw] w-[95vw] flex items-center justify-center">
-        {selectedPage}
+        <MovablePage data={selectedPage.data} key={selectedPage.id} />
       </div>
       <div className="flex gap-2">
         <p className="cursor-pointer hover:bg-gray-300 rounded-full">

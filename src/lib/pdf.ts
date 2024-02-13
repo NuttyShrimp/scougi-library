@@ -45,6 +45,6 @@ export const uploadPage = async (year: string, trim: number, pageNr: number, pdf
   return true;
 }
 
-export const base64ToUint8Array = (base64: string): number[] => {
-  return atob(base64).split("").map(c => c.charCodeAt(0));
+export const base64ToUint8Array = (base64: string): Uint8Array => {
+  return new Uint8Array(atob(base64).split("").map(c => c.charCodeAt(0)));
 };

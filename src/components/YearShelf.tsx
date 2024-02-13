@@ -1,5 +1,5 @@
 import db from "@/lib/db"
-import { ScougiPage } from "./ScougiPage";
+import ScougiPage from "./ScougiPage";
 import { base64ToUint8Array } from "@/lib/pdf";
 import Link from "next/link";
 
@@ -14,8 +14,8 @@ export const YearShelf = async (props: { year: string, trims: number[] }) => {
           let data = trimFirstPages.find(p => p.id === t);
           if (!data) return null;
           return (
-            <Link key={t} className="w-full h-full" href={`/scougi/${props.year}/${i}`} >
-              <ScougiPage data={base64ToUint8Array(data.data)} scaleOverwrite={0.12} />
+            <Link key={`${props.year}-${data.id}`} className="w-full h-full" href={`/scougi/${props.year}/${i}`} >
+              <ScougiPage data={data.data} scaleOverwrite={0.12} />
             </Link>
           )
         })}
