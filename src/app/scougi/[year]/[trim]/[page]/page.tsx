@@ -9,9 +9,9 @@ export default async function Page({ params }: { params: { year: string; trim: n
     return redirect("/404");
   }
 
-  const page = await db.selectFrom("ScougiPage").selectAll().where('id', "=", scougi.id).where('number', "=", Number(params.page)).executeTakeFirst();
+  const page = await db.selectFrom("ScougiPage").selectAll().where('id', "=", scougi.id).where('number', "=", Number(params.page - 1)).executeTakeFirst();
   if (!page) {
-    return redirect(`/scougi/${params.year}/${params.trim}/0`);
+    return redirect(`/scougi/${params.year}/${params.trim}/1`);
   }
 
   return (
