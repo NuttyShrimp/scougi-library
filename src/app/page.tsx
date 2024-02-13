@@ -1,6 +1,5 @@
-import { ScougiList } from "@/components/ScougiList";
+import { ScougiList, ScougiListSkeleton } from "@/components/ScougiList";
 import { Suspense } from "react";
-import Loading from "./loading";
 
 export default async function Page() {
   return (
@@ -11,7 +10,7 @@ export default async function Page() {
         </h1>
         <h3 className="mt-3">Lees hier uw favoriete trimestriële blad!</h3>
       </div>
-      <Suspense fallback={<Loading />}>
+      <Suspense fallback={<ScougiListSkeleton />}>
         <ScougiList />
       </Suspense>
     </div>
