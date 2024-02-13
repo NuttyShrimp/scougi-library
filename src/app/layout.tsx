@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { Footer } from "@/components/Footer";
-import { ThemeProvider } from "@/components/providers/ThemeProvider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -20,9 +19,7 @@ export default function RootLayout({
     <html lang="nl">
       <body className={`${inter.className} prose !max-w-full !w-screen min-h-screen flex flex-col justify-between`}>
         <main className='grow'>
-          <ThemeProvider>
-            {children}
-          </ThemeProvider>
+          {children}
         </main>
         <Footer />
       </body>

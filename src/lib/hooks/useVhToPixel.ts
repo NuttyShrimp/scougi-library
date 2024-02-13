@@ -1,0 +1,31 @@
+'use client'
+import { useCallback, useEffect, useState } from 'react';
+
+
+export const vhToPixel = (vh: number): number => {
+  if (typeof window === "undefined") {
+    return 0;
+  }
+  return (vh * window.innerHeight) / 100;
+};
+
+export const useVhToPixel = (vh: number): number => {
+  const [calcPx, setCalcPx] = useState(vhToPixel(vh));
+
+  const handleResize = useCallback(() => {
+    setCalcPx(vhToPixel(vh));
+  }, [vh]);
+
+  useEffect(() => {
+    window.addEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, [handleResize]);
+
+  useEffect(() => {
+    setCalcPx(vhToPixel(vh));
+  }, [vh]);
+
+  return calcPx;
+};
