@@ -16,7 +16,7 @@ const ScougiPage = (props: { data: string; height?: number }) => {
   const defaultSize = useVhToPixel(80);
   return (
     <Document file={`data:application/pdf;base64,${props.data}`} options={options}>
-      <Page pageNumber={1} height={props.height ?? defaultSize} canvasBackground="oklch(var(--b1)/1)" />
+      <Page pageNumber={1} height={props.height ?? defaultSize} />
     </Document>
   )
 }

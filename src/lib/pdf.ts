@@ -35,7 +35,7 @@ export const uploadPage = async (year: string, trim: number, pageNr: number, pdf
   }, '')
   const b64encoded = btoa(string);
 
-  const res = await fetch(`/scougi/${year}/${trim}/${pageNr}`, {
+  const res = await fetch(`/scougi/${year}/${trim}/${pageNr}/publish`, {
     method: "POST",
     body: b64encoded
   });
@@ -44,7 +44,3 @@ export const uploadPage = async (year: string, trim: number, pageNr: number, pdf
   }
   return true;
 }
-
-export const base64ToUint8Array = (base64: string): Uint8Array => {
-  return new Uint8Array(atob(base64).split("").map(c => c.charCodeAt(0)));
-};
