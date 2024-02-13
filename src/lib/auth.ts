@@ -15,8 +15,8 @@ const db = connect({
 })
 
 const adapter = new PlanetScaleAdapter(db, {
-  user: "user",
-  session: "session"
+  user: "User",
+  session: "Session"
 });
 
 export const lucia = new Lucia(adapter, {

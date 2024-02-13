@@ -5,7 +5,7 @@ import { cookies } from "next/headers";
 export async function GET(): Promise<Response> {
   const state = generateState();
   const url = await dropbox.createAuthorizationURL(state, {
-    scopes: ["email", "profile"]
+    scopes: ["email", "profile", "account_info.read"]
   });
 
   cookies().set("dropbox_oauth_state", state, {

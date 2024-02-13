@@ -2,11 +2,10 @@ import { validateRequest } from "@/lib/auth"
 import db from "@/lib/db";
 
 export const POST = async (request: Request, { params }: { params: { year: string; trim: number } }) => {
-  // TODO: remove when auth works
-  // const { user } = await validateRequest();
-  // if (!user) {
-  //   return new Response(null, { status: 401 });
-  // }
+  const { user } = await validateRequest();
+  if (!user) {
+    return new Response(null, { status: 401 });
+  }
 
   const body = await request.json();
 

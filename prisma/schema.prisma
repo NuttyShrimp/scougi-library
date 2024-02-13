@@ -23,8 +23,8 @@ model User {
 
 model Session {
   id        String   @id
-  userId    String
-  expiresAt DateTime
+  userId    String   @map("user_id")
+  expiresAt DateTime @map("expires_at")
   user      User     @relation(references: [id], fields: [userId], onDelete: Cascade)
 
   @@index([userId])

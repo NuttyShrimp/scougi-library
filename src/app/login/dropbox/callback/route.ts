@@ -17,8 +17,9 @@ export async function GET(request: Request): Promise<Response> {
 
   try {
     const tokens = await dropbox.validateAuthorizationCode(code);
+    console.log("tokens", tokens)
 
-    const response = await fetch("https://api.dropboxapi.com/2/openid/userinfo", {
+    const response = await fetch("https://api.dropboxapi.com/2/users/get_current_account", {
       method: "POST",
       headers: {
         Authorization: `Bearer ${tokens.accessToken}`
@@ -26,7 +27,7 @@ export async function GET(request: Request): Promise<Response> {
     });
     const user: DropboxUser = await response.json();
 
-    const existingUser = await db.selectFrom("User").selectAll().where("dropboxId", "=", user.sub).executeTakeFirst();
+    const existingUser = await db.selectFrom("User").selectAll().where("dropboxId", "=", user.account_id).executeTakeFirst();
 
     if (existingUser) {
       const session = await lucia.createSession(existingUser.id, {});
@@ -43,9 +44,9 @@ export async function GET(request: Request): Promise<Response> {
     const userId = generateId(15);
     db.insertInto("User").values({
       id: userId,
-      dropboxId: user.sub,
+      dropboxId: user.account_id,
       email: user.email,
-      name: `${user.given_name} ${user.family_name}`,
+      name: user.name.display_name,
       approved: false
     }).execute();
     const session = await lucia.createSession(userId, {});
@@ -73,7 +74,11 @@ export async function GET(request: Request): Promise<Response> {
 
 interface DropboxUser {
   email: string;
-  given_name: string;
-  family_name: string;
-  sub: string;
+  name: {
+    given_name: string,
+    surname: string,
+    familiar_name: string,
+    display_name: string,
+  },
+  account_id: string;
 }

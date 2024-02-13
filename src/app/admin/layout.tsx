@@ -6,11 +6,13 @@ export default async function Layout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // Currently disabled while https://github.com/pilcrowOnPaper/arctic/pull/55 is open
-  // const { user } = await validateRequest();
-  // if (!user) {
-  //   return redirect("/login");
-  // }
+  const { user } = await validateRequest();
+  if (!user) {
+    return redirect("/login");
+  }
+  if (!user.approved) {
+    return redirect("/login/approval");
+  }
 
   return (
     <>
