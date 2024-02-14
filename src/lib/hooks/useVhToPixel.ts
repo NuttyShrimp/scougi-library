@@ -1,5 +1,6 @@
 'use client'
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useWindowSize } from './useWindowSize';
 
 
 export const vhToPixel = (vh: number): number => {
@@ -11,21 +12,11 @@ export const vhToPixel = (vh: number): number => {
 
 export const useVhToPixel = (vh: number): number => {
   const [calcPx, setCalcPx] = useState(vhToPixel(vh));
-
-  const handleResize = useCallback(() => {
-    setCalcPx(vhToPixel(vh));
-  }, [vh]);
-
-  useEffect(() => {
-    window.addEventListener('resize', handleResize);
-    return () => {
-      window.removeEventListener('resize', handleResize);
-    };
-  }, [handleResize]);
+  const size = useWindowSize();
 
   useEffect(() => {
     setCalcPx(vhToPixel(vh));
-  }, [vh]);
+  }, [size, vh]);
 
   return calcPx;
 };

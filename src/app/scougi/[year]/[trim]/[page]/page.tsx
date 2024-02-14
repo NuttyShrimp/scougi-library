@@ -18,7 +18,7 @@ export default async function Page({ params }: { params: { year: string; trim: n
 
   return (
     <div className="flex flex-col items-center">
-      <div className="py-4 h-[75vh] sm:w-[80vw] w-[95vw] flex items-center justify-center relative">
+      <div className="py-4 h-[80vh] sm:w-[80vw] w-[90vw] flex items-center justify-center relative">
         <MovablePage data={page.data} />
         <FloatingIndicator year={params.year} trim={Number(params.trim)} page={Number(params.page)} totalPages={scougi.pages} />
       </div>
