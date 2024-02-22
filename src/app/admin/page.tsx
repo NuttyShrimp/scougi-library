@@ -3,7 +3,15 @@ import { ScougiUploader } from "@/components/ScougiUploader";
 import db from "@/lib/db";
 
 export default async function Page() {
-  const published = await db.selectFrom("Scougi").select(["year", "trim", "id", "hidden"]).orderBy("year", "desc").orderBy("trim", "desc").execute();
+  const published = await db.query.ScougiTable.findMany({
+    columns: {
+      year: true,
+      trim: true,
+      id: true,
+      hidden: true
+    },
+    orderBy: (s, { desc }) => [desc(s.year), desc(s.trim)],
+  });
 
   const today = new Date();
   const thisYear =

@@ -4,8 +4,8 @@ import { cookies } from "next/headers";
 import { cache } from "react";
 import { Dropbox } from "arctic";
 
+import type { User as DbUser } from '@/lib/db/schema';
 import type { Session, User } from "lucia";
-import type { User as DbUser } from "@prisma/client";
 import { connect } from "@planetscale/database";
 
 const db = connect({
@@ -15,8 +15,8 @@ const db = connect({
 })
 
 const adapter = new PlanetScaleAdapter(db, {
-  user: "User",
-  session: "Session"
+  user: "scougi_user",
+  session: "scougi_session"
 });
 
 export const lucia = new Lucia(adapter, {

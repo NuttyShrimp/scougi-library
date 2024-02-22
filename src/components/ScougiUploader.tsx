@@ -1,12 +1,13 @@
 'use client';
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import AutoComplete from "./AutoComplete"
-import { TrimOptions, TrimesterNames } from "@/enums/trimesterNames";
+import { TrimOptions } from "@/enums/trimesterNames";
 import { FileUp, Send } from 'lucide-react';
 import DropboxChooser from "./DropboxChooser";
 import { PDFDocument } from "pdf-lib";
 import { downloadFromDropbox, splitDocToPages, uploadPage } from "@/lib/pdf";
 import { revalidatePath } from "next/cache";
+import { useRouter } from "next/navigation";
 
 export const ScougiUploader = (props: { years: Record<string, number[]> }) => {
   const [yearValue, setYearValue] = useState("")
@@ -14,9 +15,11 @@ export const ScougiUploader = (props: { years: Record<string, number[]> }) => {
   const [selectedFile, setSelectedFile] = useState<Dropbox.file | null>(null);
   const [processing, setProcessing] = useState(false);
 
+  const router = useRouter();
+
   const trimOptions = useMemo(() =>
     TrimOptions.filter((_, i) => props.years?.[yearValue ?? '2022-2023']?.includes(i) ?? true)
-  , [yearValue, props.years]);
+    , [yearValue, props.years]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -66,6 +69,7 @@ export const ScougiUploader = (props: { years: Record<string, number[]> }) => {
       }
       console.log(failedPages);
       revalidatePath('/admin')
+      router.refresh();
     } catch (e) {
       console.error(e);
     } finally {

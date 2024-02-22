@@ -1,5 +1,7 @@
 import { validateRequest } from "@/lib/auth";
 import db from "@/lib/db";
+import { ScougiPageTable, ScougiTable } from "@/lib/db/schema";
+import { and, eq } from "drizzle-orm";
 
 export async function POST(request: Request, { params }: { params: { year: string; trim: number; page: number } }): Promise<Response> {
   const { user } = await validateRequest();
@@ -7,7 +9,12 @@ export async function POST(request: Request, { params }: { params: { year: strin
 
   const data = await request.text();
 
-  const scougi = await db.selectFrom("Scougi").selectAll().where("year", "=", params.year).where("trim", "=", Number(params.trim)).executeTakeFirst();
+  const scougi = await db.query.ScougiTable.findFirst({
+    where: and(
+      eq(ScougiTable.year, params.year),
+      eq(ScougiTable.trim, Number(params.trim)),
+    )
+  })
 
   if (!scougi) {
     return new Response(null, {
@@ -15,11 +22,11 @@ export async function POST(request: Request, { params }: { params: { year: strin
     })
   }
 
-  db.insertInto("ScougiPage").values({
+  await db.insert(ScougiPageTable).values({
     id: scougi.id,
     number: Number(params.page),
     data,
-  }).execute();
+  });
 
   return new Response(null, {
     status: 200,

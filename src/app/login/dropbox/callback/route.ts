@@ -3,6 +3,8 @@ import { db } from "@/lib/db";
 import { cookies } from "next/headers";
 import { OAuth2RequestError } from "arctic";
 import { generateId } from "lucia";
+import { eq } from "drizzle-orm";
+import { userTable } from "@/lib/db/schema";
 
 export async function GET(request: Request): Promise<Response> {
   const url = new URL(request.url);
@@ -17,7 +19,6 @@ export async function GET(request: Request): Promise<Response> {
 
   try {
     const tokens = await dropbox.validateAuthorizationCode(code);
-    console.log("tokens", tokens)
 
     const response = await fetch("https://api.dropboxapi.com/2/users/get_current_account", {
       method: "POST",
@@ -27,7 +28,9 @@ export async function GET(request: Request): Promise<Response> {
     });
     const user: DropboxUser = await response.json();
 
-    const existingUser = await db.selectFrom("User").selectAll().where("dropboxId", "=", user.account_id).executeTakeFirst();
+    const existingUser = await db.query.userTable.findFirst({
+      where: eq(userTable.dropboxId, user.account_id)
+    });
 
     if (existingUser) {
       const session = await lucia.createSession(existingUser.id, {});
@@ -42,13 +45,13 @@ export async function GET(request: Request): Promise<Response> {
     }
 
     const userId = generateId(15);
-    db.insertInto("User").values({
+    await db.insert(userTable).values({
       id: userId,
       dropboxId: user.account_id,
       email: user.email,
       name: user.name.display_name,
       approved: false
-    }).execute();
+    });
     const session = await lucia.createSession(userId, {});
     const sessionCookie = lucia.createSessionCookie(session.id);
     cookies().set(sessionCookie.name, sessionCookie.value, sessionCookie.attributes);

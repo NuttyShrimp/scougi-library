@@ -3,14 +3,27 @@ import db from "@/lib/db";
 import { redirect } from "next/navigation";
 import { PageIndicator } from "./PageIndicator";
 import { FloatingIndicator } from "./FloatingIndicator";
+import { and, eq } from "drizzle-orm";
+import { ScougiPageTable, ScougiTable } from "@/lib/db/schema";
 
-export default async function Page({ params }: { params: { year: string; trim: number; page:number } }) {
-  const scougi = await db.selectFrom("Scougi").selectAll().where("year", "=", params.year).where("trim", "=", Number(params.trim)).executeTakeFirst();
+export default async function Page({ params }: { params: { year: string; trim: number; page: number } }) {
+  const scougi = await db.query.ScougiTable.findFirst({
+    where: and(
+      eq(ScougiTable.year, params.year),
+      eq(ScougiTable.trim, Number(params.trim))
+    )
+  });
   if (!scougi) {
     return redirect("/404");
   }
 
-  const page = await db.selectFrom("ScougiPage").selectAll().where('id', "=", scougi.id).where('number', "=", Number(params.page - 1)).executeTakeFirst();
+  const page = await db.query.ScougiPageTable.findFirst({
+    where: and(
+      eq(ScougiPageTable.id, scougi.id),
+      eq(ScougiPageTable.number, Number(params.page - 1))
+    )
+  });
+
   if (!page) {
     return redirect(`/scougi/${params.year}/${params.trim}/1`);
   }

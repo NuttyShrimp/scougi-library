@@ -1,18 +1,21 @@
 import db from "@/lib/db";
 import { UserRow } from "./UserRow";
 import { revalidatePath } from "next/cache";
+import { eq } from "drizzle-orm";
+import { userTable } from "@/lib/db/schema";
 
 export default async function Page() {
-  const users = await db.selectFrom("User").selectAll().where("approved", "=", false).execute();
+  const users = await db.query.userTable.findMany({
+    where: eq(userTable.approved, false)
+  });
 
   const approveUser = async (id: string) => {
     'use server'
     await db
-      .updateTable("User")
+      .update(userTable)
       .set({ approved: true })
-      .where("id", "=", id)
-      .execute();
-    
+      .where(eq(userTable.id, id))
+
     revalidatePath('/admin/approvals')
   }
 
@@ -33,7 +36,7 @@ export default async function Page() {
             {users.map((user) => (
               <UserRow key={user.id} user={user} approveUser={approveUser} />
             ))}
-            </tbody>
+          </tbody>
         </table>
       </div>
     </div>

@@ -2,7 +2,13 @@ import db from "@/lib/db";
 import { YearShelf } from "./YearShelf";
 
 export const ScougiList = async () => {
-  const scougis = await db.selectFrom("Scougi").select(['id', "year", 'trim']).execute();
+  const scougis = await db.query.ScougiTable.findMany({
+    columns: {
+      id: true,
+      year: true,
+      trim: true
+    }
+  });
 
   const groupedScougis: Record<string, number[]> = {};
   scougis.forEach(s => {
@@ -11,6 +17,7 @@ export const ScougiList = async () => {
     }
     groupedScougis[s.year][s.trim] = s.id;
   });
+
   return (
     <div className="container mx-auto">
       {

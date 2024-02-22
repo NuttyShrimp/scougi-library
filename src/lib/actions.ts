@@ -2,11 +2,13 @@
 
 import { revalidatePath } from "next/cache";
 import db from "./db";
+import { ScougiPageTable, ScougiTable } from "./db/schema";
+import { eq } from "drizzle-orm";
 
 export const deleteScougi = async (id: number) => {
   try {
-    await db.deleteFrom("ScougiPage").where("id", "=", id).execute();
-    await db.deleteFrom("Scougi").where("id", "=", id).execute();
+    await db.delete(ScougiPageTable).where(eq(ScougiPageTable.id, id));
+    await db.delete(ScougiTable).where(eq(ScougiTable.id, id));
   } catch (e) {
 
     console.error(e)

@@ -1,9 +1,17 @@
 import db from "@/lib/db"
 import ScougiPage from "./ScougiPage";
 import Link from "next/link";
+import { and, eq, inArray } from "drizzle-orm";
+import { ScougiPageTable } from "@/lib/db/schema";
 
 export const YearShelf = async (props: { year: string, trims: number[] }) => {
-  const trimFirstPages = await db.selectFrom("ScougiPage").select(['data', 'id']).where("number", '=', 0).where("id", "in", props.trims.filter(t => t)).execute();
+  const trimFirstPages = await db.query.ScougiPageTable.findMany({
+    columns: {
+      id: true,
+      data: true,
+    },
+    where: and(eq(ScougiPageTable.number, 0), inArray(ScougiPageTable.id, props.trims.filter(t => t)))
+  });
   return (
     <div>
       <h2 className="text-center my-4">{props.year}</h2>

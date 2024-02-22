@@ -1,8 +1,8 @@
 'use client'
 
-import { User } from "@prisma/client";
+import { User } from "@/lib/db/schema";
 
-export const UserRow = ({ user, approveUser }: { user: User, approveUser: (id: string) => Promise<void>}) => {
+export const UserRow = ({ user, approveUser }: { user: User, approveUser: (id: string) => Promise<void> }) => {
   return (
     <tr className="hover">
       <td>{user.dropboxId}</td>

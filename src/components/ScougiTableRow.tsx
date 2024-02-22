@@ -4,7 +4,7 @@ import { deleteScougi } from "@/lib/actions";
 import { ExternalLink, Trash2 } from "lucide-react";
 import Link from "next/link";
 
-export const ScougiTableRow = ({ scougi }: { scougi: { id: number, trim: number; year: string; hidden: boolean } }) => {
+export const ScougiTableRow = ({ scougi }: { scougi: { id: number, trim: number; year: string; hidden: boolean | null } }) => {
   const handleDelete = async () => {
     try {
       await deleteScougi(scougi.id);
@@ -18,7 +18,7 @@ export const ScougiTableRow = ({ scougi }: { scougi: { id: number, trim: number;
       <td>{scougi.year}</td>
       <td>{TrimesterNames[scougi.trim]}</td>
       <td>
-        <input type="checkbox" checked={scougi.hidden} readOnly className="checkbox disabled" />
+        <input type="checkbox" checked={scougi.hidden ?? false} readOnly className="checkbox disabled" />
       </td>
       <td>
         <details className="dropdown">

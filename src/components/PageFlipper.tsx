@@ -1,10 +1,10 @@
 "use client";
-import { ScougiPage } from "@prisma/client";
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
 import { useMemo, useState } from "react";
 import { MovablePage } from "./MovablePage";
+import { ScougiPage } from "@/lib/db/schema";
 
-export const PageFlipper = (props: { pages: ScougiPage[]}) => {
+export const PageFlipper = (props: { pages: ScougiPage[] }) => {
   const [page, setPage] = useState(0);
   const selectedPage = useMemo(() => props.pages[page], [page, props.pages]);
 
@@ -16,17 +16,17 @@ export const PageFlipper = (props: { pages: ScougiPage[]}) => {
       <div className="flex gap-2">
         <p className="cursor-pointer hover:bg-gray-300 rounded-full">
           <ChevronsLeft height={28} onClick={() => setPage(Math.max(0, page - 10))} />
-        </p> 
+        </p>
         <p className="cursor-pointer hover:bg-gray-300 rounded-full">
           <ChevronLeft height={28} onClick={() => setPage(Math.max(0, page - 1))} />
-        </p> 
+        </p>
         <p className="min-w-16 text-center">
           {page + 1} / {props.pages.length}
         </p>
         <p className="cursor-pointer hover:bg-gray-300 rounded-full">
           <ChevronRight height={28} onClick={() => setPage(Math.min(props.pages.length - 1, page + 1))} />
         </p>
-      <p className="cursor-pointer hover:bg-gray-300 rounded-full">
+        <p className="cursor-pointer hover:bg-gray-300 rounded-full">
           <ChevronsRight height={28} onClick={() => setPage(Math.min(props.pages.length - 1, page + 10))} />
         </p>
       </div>
