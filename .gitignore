@@ -38,3 +38,6 @@ next-env.d.ts
 /.direnv/
 /.data/
 /.env
+
+# Sentry Config File
+.sentryclirc

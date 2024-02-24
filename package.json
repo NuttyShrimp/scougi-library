@@ -12,6 +12,7 @@
   "dependencies": {
     "@lucia-auth/adapter-mysql": "^3.0.0",
     "@planetscale/database": "^1.16.0",
+    "@sentry/nextjs": "^7.102.1",
     "@tailwindcss/typography": "^0.5.10",
     "arctic": "^1.1.4",
     "daisyui": "^4.6.1",
