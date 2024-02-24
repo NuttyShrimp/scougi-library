@@ -27,7 +27,7 @@ export const PageIndicator = ({ year, trim, page, totalPages }: { year: string; 
       </p>
       <p className="min-w-16 text-center">
         <input
-          className="w-8 px-0 text-center input input-sm"
+          className="w-8 px-0 text-center input input-sm input-bordered"
           value={pageValue}
           onChange={e => setPage(Number(e.currentTarget.value))}
           onKeyUp={e => {
