@@ -23,7 +23,6 @@ const ScougiPage = (props: { data: string; height?: number }) => {
     }
     return size.width / 550;
   }, [size]);
-  console.log(props.data)
 
   return (
     <Document file={`data:application/pdf;base64,${props.data}`} options={options}>
