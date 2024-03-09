@@ -22,7 +22,7 @@ export const POST = async (request: Request, { params }: { params: { year: strin
       status: 500
     })
   }
-  if (result?.insertId === undefined) {
+  if (result?.lastInsertRowid === undefined) {
     return Response.json({ message: "Failed to save scougi in database (insertId)" }, {
       status: 500
     })

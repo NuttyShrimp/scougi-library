@@ -7,14 +7,15 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "db:push": "drizzle-kit push:mysql"
+    "db:push": "drizzle-kit push:sqlite"
   },
   "dependencies": {
-    "@lucia-auth/adapter-mysql": "^3.0.0",
-    "@planetscale/database": "^1.16.0",
+    "@libsql/client": "^0.5.3",
+    "@lucia-auth/adapter-sqlite": "^3.0.0",
     "@sentry/nextjs": "^7.102.1",
     "@tailwindcss/typography": "^0.5.10",
     "arctic": "^1.1.4",
+    "better-sqlite3": "^9.4.3",
     "daisyui": "^4.6.1",
     "dotenv": "^16.4.5",
     "drizzle-orm": "^0.29.3",

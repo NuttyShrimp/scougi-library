@@ -1,53 +1,37 @@
-import { boolean, datetime, int, longtext, mysqlTableCreator, primaryKey, unique, varchar } from "drizzle-orm/mysql-core";
+import { integer, primaryKey, sqliteTable, text, unique } from "drizzle-orm/sqlite-core";
 
-const mysqlTable = mysqlTableCreator(n => `scougi_${n}`);
-
-export const userTable = mysqlTable("user", {
-  id: varchar("id", {
-    length: 255
-  }).primaryKey(),
-  dropboxId: varchar("dropbox_id", {
-    length: 255
-  }).unique(),
-  email: varchar("email", {
-    length: 255
-  }).unique(),
-  name: varchar("name", {
-    length: 255
-  }),
-  approved: boolean("approved").notNull()
+export const userTable = sqliteTable("user", {
+  id: text("id").primaryKey(),
+  dropboxId: text("dropbox_id").unique(),
+  email: text("email").unique(),
+  name: text("name"),
+  approved: integer("approved", { mode: "boolean" }).notNull()
 });
 
 export type User = typeof userTable.$inferSelect;
 
-export const sessionTable = mysqlTable("session", {
-  id: varchar("id", {
-    length: 255
-  }).primaryKey(),
-  userId: varchar("user_id", {
-    length: 255
-  })
+export const sessionTable = sqliteTable("session", {
+  id: text("id").primaryKey(),
+  userId: text("user_id")
     .notNull()
     .references(() => userTable.id),
-  expiresAt: datetime("expires_at").notNull()
+  expiresAt: integer("expires_at", { mode: "timestamp" }).notNull()
 });
 
-export const ScougiTable = mysqlTable("scougi", {
-  id: int("id").primaryKey().autoincrement(),
-  year: varchar("year", {
-    length: 255
-  }).notNull(),
-  trim: int("trim").notNull(),
-  pages: int("pages").notNull(),
-  hidden: boolean("hidden"),
+export const ScougiTable = sqliteTable("scougi", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  year: text("year").notNull(),
+  trim: integer("trim").notNull(),
+  pages: integer("pages").notNull(),
+  hidden: integer("hidden", { mode: 'boolean' }),
 }, t => ({
   unqiue: unique().on(t.year, t.trim)
 }));
 
-export const ScougiPageTable = mysqlTable("scougi_page", {
-  id: int("scougi_id").notNull().references(() => ScougiTable.id),
-  number: int("number").notNull(),
-  data: longtext("data").notNull(),
+export const ScougiPageTable = sqliteTable("scougi_page", {
+  id: integer("scougi_id").notNull().references(() => ScougiTable.id),
+  number: integer("number").notNull(),
+  data: text("data").notNull(),
 }, t => ({
   pk: primaryKey({ columns: [t.id, t.number] })
 }));

@@ -1,22 +1,21 @@
 import { Lucia } from "lucia";
-import { PlanetScaleAdapter } from "@lucia-auth/adapter-mysql";
+import { LibSQLAdapter } from "@lucia-auth/adapter-sqlite";
 import { cookies } from "next/headers";
 import { cache } from "react";
 import { Dropbox } from "arctic";
 
 import type { User as DbUser } from '@/lib/db/schema';
 import type { Session, User } from "lucia";
-import { connect } from "@planetscale/database";
+import { createClient } from "@libsql/client";
 
-const db = connect({
-  host: process.env.PLANETSCALE_DB_HOST,
-  username: process.env.PLANETSCALE_DB_USERNAME,
-  password: process.env.PLANETSCALE_DB_PASSWORD,
+const db = createClient({
+  url: process.env.TURSO_DATABASE_URL!,
+  authToken: process.env.TURSO_AUTH_TOKEN!
 })
 
-const adapter = new PlanetScaleAdapter(db, {
-  user: "scougi_user",
-  session: "scougi_session"
+const adapter = new LibSQLAdapter(db, {
+  user: "user",
+  session: "session"
 });
 
 export const lucia = new Lucia(adapter, {
