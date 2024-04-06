@@ -6,16 +6,14 @@ import { FileUp, Send } from 'lucide-react';
 import DropboxChooser from "./DropboxChooser";
 import { PDFDocument } from "pdf-lib";
 import { downloadFromDropbox, splitDocToPages, uploadPage } from "@/lib/pdf";
-import { revalidatePath } from "next/cache";
 import { useRouter } from "next/navigation";
+import { finishScougiUpload } from '@/lib/actions';
 
 export const ScougiUploader = (props: { years: Record<string, number[]> }) => {
   const [yearValue, setYearValue] = useState("")
   const [trimValue, setTrimValue] = useState("")
   const [selectedFile, setSelectedFile] = useState<Dropbox.file | null>(null);
   const [processing, setProcessing] = useState(false);
-
-  const router = useRouter();
 
   const trimOptions = useMemo(() =>
     TrimOptions.filter((_, i) => props.years?.[yearValue ?? '2022-2023']?.includes(i) ?? true)
@@ -68,8 +66,7 @@ export const ScougiUploader = (props: { years: Record<string, number[]> }) => {
         }
       }
       console.log(failedPages);
-      revalidatePath('/admin')
-      router.refresh();
+      finishScougiUpload()
     } catch (e) {
       console.error(e);
     } finally {

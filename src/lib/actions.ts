@@ -13,5 +13,9 @@ export const deleteScougi = async (id: number) => {
 
     console.error(e)
   }
-  revalidatePath('/admin')
+  revalidatePath('/')
+}
+
+export const finishScougiUpload = () => {
+  revalidatePath('/')
 }
