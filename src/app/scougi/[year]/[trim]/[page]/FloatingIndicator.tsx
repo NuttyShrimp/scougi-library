@@ -12,10 +12,10 @@ export const FloatingIndicator = ({ year, trim, page, totalPages }: { year: stri
   }
   return (
     <>
-      <div className="opacity-0 md:hover:opacity-25 absolute left-0 top-0 w-12 h-[80vh] bg-gray-300 flex items-center justify-center cursor-pointer" onClick={() => changePage(-1)}>
+      <div className="opacity-0 md:hover:opacity-25 absolute left-0 top-0 w-12 h-[80vh] bg-gray-300 flex items-center justify-center cursor-pointer z-10" onClick={() => changePage(-1)}>
         <ChevronLeft />
       </div>
-      <div className="opacity-0 md:hover:opacity-25 absolute right-0 top-0 w-12 h-[80vh] bg-gray-300 flex items-center justify-center cursor-pointer" onClick={() => changePage(1)}>
+      <div className="opacity-0 md:hover:opacity-25 absolute right-0 top-0 w-12 h-[80vh] bg-gray-300 flex items-center justify-center cursor-pointer z-10" onClick={() => changePage(1)}>
         <ChevronRight />
       </div>
     </>

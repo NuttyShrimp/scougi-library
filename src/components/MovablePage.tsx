@@ -14,7 +14,7 @@ export const MovablePage = (props: { data: string; scaleOverwrite?: number }) =>
       }}
     >
       <TransformComponent
-        wrapperClass="flex items-baseline"
+        wrapperClass="flex items-baseline !overflow-visible cursor-zoom-in"
       >
         <ScougiPage {...props} />
       </TransformComponent>
