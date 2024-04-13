@@ -19,15 +19,17 @@ const ScougiPage = (props: { data: string; height?: number }) => {
   const size = useWindowSize();
   const scale = useMemo(() => {
     if (size.width > 550) {
-      return 1;
+      return 4;
     }
-    return size.width / 550;
+    return (size.width / 550) * 4;
   }, [size]);
 
   return (
-    <Document file={`data:application/pdf;base64,${props.data}`} options={options}>
-      <Page pageNumber={1} height={props.height ?? defaultSize} scale={scale} />
-    </Document>
+    <div style={{ scale: 0.25 }}>
+      <Document file={`data:application/pdf;base64,${props.data}`} options={options}>
+        <Page pageNumber={1} height={props.height ?? defaultSize} scale={scale} />
+      </Document>
+    </div>
   )
 }
 
