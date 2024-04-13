@@ -14,18 +14,20 @@ const options = {
 };
 
 
-const ScougiPage = (props: { data: string; height?: number }) => {
+const ScougiPage = (props: { data: string; height?: number; static?: boolean }) => {
+
   const defaultSize = useVhToPixel(80);
   const size = useWindowSize();
   const scale = useMemo(() => {
+    let scaleModifier = props.static ? 1 : 4;
     if (size.width > 550) {
-      return 4;
+      return scaleModifier;
     }
-    return (size.width / 550) * 4;
-  }, [size]);
+    return (size.width / 550) * scaleModifier;
+  }, [size, props.static]);
 
   return (
-    <div style={{ scale: 0.25 }}>
+    <div style={{ scale: props.static ? 1 : 0.25 }}>
       <Document file={`data:application/pdf;base64,${props.data}`} options={options}>
         <Page pageNumber={1} height={props.height ?? defaultSize} scale={scale} />
       </Document>

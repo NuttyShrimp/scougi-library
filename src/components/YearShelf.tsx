@@ -22,7 +22,7 @@ export const YearShelf = async (props: { year: string, trims: number[] }) => {
           if (!data) return null;
           return (
             <Link key={`${props.year}-${data.id}`} href={`/scougi/${props.year}/${i}`} >
-              <ScougiPage data={data.data} height={110} />
+              <ScougiPage data={data.data} height={110} static />
             </Link>
           )
         })}

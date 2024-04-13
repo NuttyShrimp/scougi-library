@@ -1,8 +1,10 @@
 'use client'
 import { TransformComponent, TransformWrapper } from "react-zoom-pan-pinch";
 import ScougiPage from "./ScougiPage";
+import { ZoomControls } from "./ZoomControls";
 
 export const MovablePage = (props: { data: string; scaleOverwrite?: number }) => {
+
   return (
     <TransformWrapper
       wheel={{
@@ -13,6 +15,7 @@ export const MovablePage = (props: { data: string; scaleOverwrite?: number }) =>
         step: 5
       }}
     >
+      <ZoomControls />
       <TransformComponent
         wrapperClass="flex items-baseline !overflow-visible cursor-zoom-in"
       >
