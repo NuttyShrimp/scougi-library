@@ -16,6 +16,6 @@ export const deleteScougi = async (id: number) => {
   revalidatePath('/')
 }
 
-export const finishScougiUpload = () => {
+export const finishScougiUpload = async () => {
   revalidatePath('/')
 }
