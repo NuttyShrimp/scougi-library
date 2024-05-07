@@ -26,7 +26,7 @@
     "pdf-lib": "^1.17.1",
     "react": "^18",
     "react-dom": "^18",
-    "react-pdf": "^7.7.1",
+    "react-pdf": "^7.7.3",
     "react-zoom-pan-pinch": "^3.4.4"
   },
   "devDependencies": {
