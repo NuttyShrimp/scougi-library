@@ -4,6 +4,7 @@ dotenv.config();
 
 export default {
   schema: "./src/lib/db/schema.ts",
+  dialect: "sqlite",
   driver: "turso",
   dbCredentials: {
     url: process.env.TURSO_DATABASE_URL!,

@@ -1,9 +1,11 @@
-'use client'
+"use client"
 import { TransformComponent, TransformWrapper } from "react-zoom-pan-pinch";
 import ScougiPage from "./ScougiPage";
 import { ZoomControls } from "./ZoomControls";
+import { useState } from "react";
 
 export const MovablePage = (props: { data: string; scaleOverwrite?: number }) => {
+  const [selecting, setSelecting] = useState(false)
 
   return (
     <TransformWrapper
@@ -14,10 +16,11 @@ export const MovablePage = (props: { data: string; scaleOverwrite?: number }) =>
       pinch={{
         step: 5
       }}
+      disabled={selecting}
     >
-      <ZoomControls />
+      <ZoomControls onSetSelecting={setSelecting} />
       <TransformComponent
-        wrapperClass="flex items-baseline !overflow-visible cursor-zoom-in"
+        wrapperClass={"flex items-baseline !overflow-visible " + !selecting ? "cursor-zoom-in" : ""}
       >
         <ScougiPage {...props} />
       </TransformComponent>
