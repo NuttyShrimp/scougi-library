@@ -16,6 +16,9 @@ export const MovablePage = (props: { data: string; scaleOverwrite?: number }) =>
       pinch={{
         step: 5
       }}
+      centerZoomedOut
+      centerOnInit
+
       disabled={selecting}
     >
       <ZoomControls onSetSelecting={setSelecting} />

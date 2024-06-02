@@ -19,7 +19,7 @@ const ScougiPage = (props: { data: string; height?: number; static?: boolean }) 
   const defaultSize = useVhToPixel(80);
   const size = useWindowSize();
   const scale = useMemo(() => {
-    let scaleModifier = props.static ? 1 : 4;
+    let scaleModifier = props.static ? 1 : 1;
     if (size.width > 550) {
       return scaleModifier;
     }
@@ -27,7 +27,7 @@ const ScougiPage = (props: { data: string; height?: number; static?: boolean }) 
   }, [size, props.static]);
 
   return (
-    <div style={{ scale: props.static ? 1 : 0.25 }}>
+    <div style={{ scale: props.static ? 1 : 1 }}>
       <Document file={`data:application/pdf;base64,${props.data}`} options={options}>
         <Page pageNumber={1} height={props.height ?? defaultSize} scale={scale} renderAnnotationLayer />
       </Document>
