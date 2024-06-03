@@ -1,11 +1,9 @@
 import type { Config } from "tailwindcss";
+import daisyui from "daisyui"
+import tw_typography from "@tailwindcss/typography"
 
 const config: Config = {
-  content: [
-    "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
-  ],
+  content: ['./src/**/*.{html,js,svelte,ts}'],
   theme: {
     extend: {
       backgroundImage: {
@@ -15,7 +13,7 @@ const config: Config = {
       },
     },
   },
-  plugins: [require("@tailwindcss/typography"), require("daisyui")],
+  plugins: [tw_typography, daisyui],
   daisyui: {
     themes: ["light"]
   }
