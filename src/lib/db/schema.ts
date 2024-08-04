@@ -15,7 +15,7 @@ export const sessionTable = sqliteTable("session", {
   userId: text("user_id")
     .notNull()
     .references(() => userTable.id),
-  expiresAt: integer("expires_at", { mode: "timestamp" }).notNull()
+  expiresAt: integer("expires_at").notNull()
 });
 
 export const ScougiTable = sqliteTable("scougi", {
@@ -27,6 +27,8 @@ export const ScougiTable = sqliteTable("scougi", {
 }, t => ({
   unqiue: unique().on(t.year, t.trim)
 }));
+
+export type Scougi = typeof ScougiTable.$inferSelect;
 
 export const ScougiPageTable = sqliteTable("scougi_page", {
   id: integer("scougi_id").notNull().references(() => ScougiTable.id),
