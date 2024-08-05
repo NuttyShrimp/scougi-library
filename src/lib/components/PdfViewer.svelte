@@ -7,7 +7,6 @@
 		TextContent
 	} from 'pdfjs-dist/types/src/display/api';
 	import 'pdfjs-dist/web/pdf_viewer.css';
-	import { onMount } from 'svelte';
 	import { createEventDispatcher } from 'svelte';
 	import type { PdfLoadSuccess, PdfPageContent } from 'svelte-pdf-simple';
 
@@ -45,7 +44,7 @@
 	let textLayer: HTMLDivElement;
 	let pdfDoc: PDFDocumentProxy;
 	let pdfPage: PDFPageProxy;
-	let _props: Properties = {
+	$: _props = {
 		page: 1,
 		scale: 1.0,
 		offsetX: 0,
@@ -60,15 +59,15 @@
 	$: isPdfLoadFailure = false;
 	$: isPdfPageRenderSuccess = false;
 
-	pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
+	pdfjs.GlobalWorkerOptions.workerSrc = `https://cdn.jsdelivr.net/npm/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
-	onMount(async () => {
+	$: {
 		if (_props.url === undefined && _props.data === undefined && _props.path === undefined) {
 			isPdfLoadFailure = true;
 			console.warn('[svelte-pdf-simple] Missing pdf data source.');
 		}
-		await loadPdf();
-	});
+		loadPdf();
+	}
 
 	async function renderPage(doc: PDFDocumentProxy, pageNumber: number): Promise<PdfPageContent> {
 		pdfPage = await doc.getPage(pageNumber);

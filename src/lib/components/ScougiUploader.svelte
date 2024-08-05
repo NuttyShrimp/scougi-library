@@ -50,7 +50,7 @@
 		{#if file}
 			<div class="label"><span class="label-text">{file.name}</span></div>
 		{/if}
-		<DropboxChooser {file}>
+		<DropboxChooser bind:file>
 			<div class="btn btn-primary">
 				<Fa icon={faFileUpload} size={'lg'} />
 				<span class="ml-2">Select scougi</span>

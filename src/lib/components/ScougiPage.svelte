@@ -1,11 +1,11 @@
 <script lang="ts">
 	import PdfViewer from './PdfViewer.svelte';
-	export let data: string;
-	$: pageHeight = (80 * window.innerHeight) / 100;
-</script>
 
-<PdfViewer
-	props={{
+	export let data: string;
+	export let height: number | undefined = undefined;
+
+	$: pageHeight = height ?? (80 * window.innerHeight) / 100;
+	$: pdfProps = {
 		data: atob(data),
 		scale: 1,
 		withAnnotations: true,
@@ -15,5 +15,7 @@
 			cMapUrl: `https://unpkg.com/pdfjs-dist@2.13.216/cmaps/`,
 			standardFontDataUrl: `https://unpkg.com/pdfjs-dist@2.13.216/standard_fonts`
 		}
-	}}
-/>
+	};
+</script>
+
+<PdfViewer props={pdfProps} />
