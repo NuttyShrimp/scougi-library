@@ -54,16 +54,13 @@
 		...props
 	};
 	let pageScale = 1;
-	$: isPdfLoading = true;
 	$: isPdfLoadSuccess = false;
-	$: isPdfLoadFailure = false;
 	$: isPdfPageRenderSuccess = false;
 
 	pdfjs.GlobalWorkerOptions.workerSrc = `https://cdn.jsdelivr.net/npm/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
 	$: {
 		if (_props.url === undefined && _props.data === undefined && _props.path === undefined) {
-			isPdfLoadFailure = true;
 			console.warn('[svelte-pdf-simple] Missing pdf data source.');
 		}
 		loadPdf();
@@ -82,8 +79,11 @@
 		}
 
 		let scale = _props.scale ?? 1;
+		if (window.innerWidth <= 550) {
+			scale = (window.innerWidth / 550) * scale;
+		}
 		if (_props.height) {
-			const viewport = pdfPage.getViewport({ scale });
+			const viewport = pdfPage.getViewport({ scale: 1 });
 			const pageScale = _props.height / viewport.height;
 			scale = pageScale * scale;
 		}
@@ -118,10 +118,7 @@
 			dispatch('load_success', { totalPages: pdfDoc.numPages, ...pageContent });
 		} catch (error: unknown) {
 			console.log(error);
-			isPdfLoadFailure = true;
 			isPdfLoadSuccess = false;
-		} finally {
-			isPdfLoading = false;
 		}
 	}
 
@@ -163,11 +160,7 @@
 	</div>
 {/if}
 {#if !isPdfPageRenderSuccess}
-	{#if isPdfLoading}
-		<slot name="loading" />
-	{:else if isPdfLoadFailure}
-		<slot name="loading_failed" />
-	{/if}
+	<slot name="loading" />
 {/if}
 
 <style>

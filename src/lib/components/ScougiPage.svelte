@@ -18,4 +18,6 @@
 	};
 </script>
 
-<PdfViewer props={pdfProps} />
+<PdfViewer props={pdfProps}>
+	<div slot="loading" class="skeleton w-full" style:height={pageHeight} />
+</PdfViewer>

@@ -41,7 +41,7 @@
 	};
 </script>
 
-<div class="relative flex justify-center overflow-hidden">
+<div class="relative flex justify-center overflow-hidden items-center">
 	<div class="join absolute top-0 z-10 mt-2">
 		<button
 			class="btn btn-sm btn-square join-item"
