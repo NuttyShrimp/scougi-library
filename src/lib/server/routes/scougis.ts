@@ -4,6 +4,7 @@ import db from "../db";
 import { ScougiPageTable, ScougiTable } from "../../db/schema";
 import { and, eq } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
+import { captureException } from "@sentry/sveltekit";
 
 export const scougiRouter = router({
   all: publicProcedure.query(async () => {
@@ -26,7 +27,7 @@ export const scougiRouter = router({
       });
     } catch (e) {
       console.error(e)
-      Sentry.captureException(e)
+      captureException(e)
       throw new TRPCError({
         cause: e,
         code: "INTERNAL_SERVER_ERROR",
