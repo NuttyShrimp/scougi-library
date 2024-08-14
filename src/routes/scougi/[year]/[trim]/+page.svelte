@@ -29,7 +29,7 @@
 			<a href="/"><Fa icon={faArrowLeft} /></a>
 			<p class="m-0">Scougi - {data.scougi.year} - {TrimesterNames[data.scougi.trim]}</p>
 		</div>
-		<button class="btn btn-sm">Download</button>
+		<!-- <button class="btn btn-sm">Download</button> -->
 	</header>
 	<div class="h-[80vh] mb-4 flex justify-center">
 		{#if $pageQuery.data}
