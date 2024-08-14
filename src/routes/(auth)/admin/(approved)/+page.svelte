@@ -11,6 +11,7 @@
 	let deleteQuery = trpc.scougi.delete.mutation({
 		onSuccess: () => {
 			toast.success('Scougi deleted');
+			trpc.scougi.all.utils.invalidate();
 		},
 		onError: (error) => {
 			toast.error('Failed to delete scougi', {

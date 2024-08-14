@@ -5,6 +5,12 @@
 	import Fa from 'svelte-fa';
 	import { faFileUpload, faPaperPlane } from '@fortawesome/free-solid-svg-icons';
 	import type { DropboxFile } from '$lib/types';
+	import { toast } from 'svelte-sonner';
+	import type { PDFDocument } from 'pdf-lib';
+	import { downloadFromDropbox, splitDocToPages, uploadPage } from '$lib/pdf';
+	import { trpc } from '$lib/trpc';
+	import { writable } from 'svelte/store';
+	import PageUploadProgress from './PageUploadProgress.svelte';
 
 	export let years: Record<string, number[]>;
 
@@ -15,8 +21,99 @@
 	let year: string;
 	let trim: string;
 	let file: DropboxFile;
+	let processing = false;
+	let uploadProgress = writable(0);
 
-	const uploadScougi = async () => {};
+	$: newScougiMutation = trpc.scougi.create.mutation();
+	$: newScougiPageMutation = trpc.scougi.addPage.mutation();
+
+	const uploadScougi = async () => {
+		if (processing) return;
+		processing = true;
+
+		// TODO :add proper toast notifications with sonner
+		if (!file) {
+			toast.error('No file selected');
+			return;
+		}
+		if (year === '') {
+			toast.error('No year selected');
+			return;
+		}
+		if (trim === '') {
+			toast.error('No trimester selected');
+			return;
+		}
+
+		let toastResolver: () => void = () => {};
+		toast.promise(
+			new Promise<void>((res) => {
+				toastResolver = res;
+			}),
+			{
+				loading: PageUploadProgress,
+				componentProps: {
+					counter: uploadProgress
+				},
+				success: () => {
+					return 'The scougi has been uploaded successfully!';
+				},
+				error: 'Error... :( Try again! Delete the scougi entry if visible in the table'
+			}
+		);
+
+		try {
+			let doc: PDFDocument;
+			try {
+				doc = await downloadFromDropbox(file.link);
+			} catch (e) {
+				console.error(e);
+				toast.error('Failed to download scougi from dropbox');
+				return;
+			}
+			const pages = await splitDocToPages(doc);
+
+			$newScougiMutation.mutate({
+				year,
+				trim: Number(trim),
+				pages: pages.length
+			});
+			if ($newScougiMutation.isError) {
+				console.error($newScougiMutation.error.message);
+				toast.error('Failed to create scougi', {
+					description: $newScougiMutation.error.message
+				});
+				return;
+			}
+
+			const failedPages: number[] = [];
+			for (let i = 0; i < pages.length; i++) {
+				const pdfStr = uploadPage(pages[i]);
+				if (pdfStr == '') {
+					throw new Error('Failed to extract page from pdf');
+				}
+				try {
+					$newScougiPageMutation.mutate({
+						data: pdfStr,
+						year,
+						trim: Number(trim),
+						page: i
+					});
+				} catch (e) {
+					console.error(e);
+					failedPages.push(i);
+				}
+				uploadProgress.set(i + 1);
+			}
+			toastResolver();
+			console.log(failedPages);
+		} catch (e) {
+			console.error(e);
+			toast.error('Failed to upload scougi');
+		} finally {
+			processing = false;
+		}
+	};
 
 	$: trimOptions = TrimOptions.filter((_, i) => years?.[year ?? '2022-2023']?.includes(i) ?? true);
 </script>

@@ -13,6 +13,27 @@ export const scougiRouter = router({
 
     return scougis
   }),
+  create: protectedProcedure.input(z.object({
+    year: z.string(),
+    trim: z.number(),
+    pages: z.number(),
+  })).mutation(async ({ input }) => {
+    try {
+      await db.insert(ScougiTable).values({
+        year: input.year,
+        trim: input.trim,
+        pages: input.pages
+      });
+    } catch (e) {
+      console.error(e)
+      Sentry.captureException(e)
+      throw new TRPCError({
+        cause: e,
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Failed to create scougi"
+      });
+    }
+  }),
   delete: protectedProcedure.input(z.object({
     id: z.number()
   })).mutation(async ({ input }) => {
@@ -33,5 +54,18 @@ export const scougiRouter = router({
       throw new TRPCError({ message: "No page data found", code: "NOT_FOUND" });
     }
     return page;
+  }),
+  addPage: publicProcedure.input(z.object({ year: z.string(), trim: z.number(), page: z.number(), data: z.string().base64() })).mutation(async ({ input }) => {
+    const scougi = await db.query.ScougiTable.findFirst({
+      where: and(eq(ScougiTable.year, input.year), eq(ScougiTable.trim, input.trim))
+    });
+    if (!scougi) {
+      throw new TRPCError({ message: "No scougi found", code: "NOT_FOUND" });
+    }
+    await db.insert(ScougiPageTable).values({
+      id: scougi.id,
+      data: input.data,
+      number: input.page,
+    })
   })
 })

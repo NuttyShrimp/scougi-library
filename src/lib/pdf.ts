@@ -1,4 +1,5 @@
 import { PDFDocument } from "pdf-lib";
+import { trpc } from "./trpc";
 
 export const downloadFromDropbox = async (url: string): Promise<PDFDocument> => {
   const previewURL = new URL(url);
@@ -29,18 +30,10 @@ export const splitDocToPages = async (doc: PDFDocument): Promise<Uint8Array[]> =
   return pagesData;
 };
 
-export const uploadPage = async (year: string, trim: number, pageNr: number, pdf: Uint8Array) => {
+export const uploadPage = (pdf: Uint8Array): string => {
   const string = pdf.reduce((data, byte) => {
     return data + String.fromCharCode(byte)
   }, '')
   const b64encoded = btoa(string);
-
-  const res = await fetch(`/scougi/${year}/${trim}/${pageNr}/publish`, {
-    method: "POST",
-    body: b64encoded
-  });
-  if (!res.ok) {
-    return false;
-  }
-  return true;
+  return b64encoded;
 }
