@@ -5,5 +5,8 @@ import { createContext } from './trpc';
 export const trpcServer = createTRPCSvelteServer({
   endpoint: '/api/trpc',
   router: appRouter,
-  createContext
+  createContext,
+  batching: {
+    enabled: false,
+  }
 });
