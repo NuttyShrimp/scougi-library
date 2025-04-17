@@ -17,7 +17,7 @@
 
 <a href={`/scougi/${year}/${trim}`}>
 	{#if $pageQuery.data}
-		<ScougiPage data={$pageQuery.data.data} height={200} />
+		<ScougiPage data={$pageQuery.data.data} height={100} />
 	{:else if $pageQuery.isError}
 		<p>Error: {$pageQuery.error.message}</p>
 	{:else}

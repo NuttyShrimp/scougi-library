@@ -12,6 +12,7 @@
 
 	let dispatch = createEventDispatcher<{
 		load_success: PdfLoadSuccess;
+		render: boolean;
 	}>();
 
 	type AdditionalParameters = Omit<
@@ -90,6 +91,7 @@
 		pageScale = scale;
 
 		await fillCanvas(pdfPage, scale ?? 1, _props.offsetX ?? 0, _props.offsetY ?? 0);
+		dispatch('render', true);
 
 		return {
 			...(annotations != null && { annotations }),

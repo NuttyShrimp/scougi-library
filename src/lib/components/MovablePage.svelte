@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { onDestroy, onMount } from 'svelte';
 	import ScougiPage from './ScougiPage.svelte';
 	import createPanZoom, { type PanZoom } from 'panzoom';
 	import Fa from 'svelte-fa';
@@ -14,14 +14,18 @@
 	let zoomContainer: HTMLDivElement;
 	let panZoomInstance: PanZoom;
 	let selecting = false;
+	let hasBeenRendered = false;
 
 	onMount(() => {
 		panZoomInstance = createPanZoom(zoomContainer, {
 			bounds: true,
 			smoothScroll: true,
-			boundsPadding: 0.5,
-			minZoom: 1
+			boundsPadding: 0.25,
+			minZoom: 0.25
 		});
+	});
+	onDestroy(() => {
+		panZoomInstance.dispose();
 	});
 
 	const zoomIn = (e: MouseEvent) => {
@@ -38,6 +42,18 @@
 		e.stopPropagation();
 		const transform = panZoomInstance.getTransform();
 		panZoomInstance.smoothZoomAbs(transform.x, transform.y, transform.scale - 0.25);
+	};
+
+	const scalePage = () => {
+		if (hasBeenRendered) return;
+		hasBeenRendered = true;
+		setTimeout(() => {
+			panZoomInstance.zoomTo(
+				zoomContainer.clientWidth * 0.5,
+				zoomContainer.clientHeight * 0.5,
+				0.45
+			);
+		}, 10);
 	};
 </script>
 
@@ -71,6 +87,6 @@
 		>
 	</div>
 	<div bind:this={zoomContainer}>
-		<ScougiPage {data} />
+		<ScougiPage {data} on:render={() => scalePage()} />
 	</div>
 </div>
