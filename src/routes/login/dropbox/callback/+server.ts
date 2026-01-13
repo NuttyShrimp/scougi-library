@@ -2,7 +2,7 @@ import { db } from '$lib/server/db';
 import { userTable } from '$lib/db/schema';
 import { auth, dropboxAuth } from '$lib/server/lucia.js';
 import type { RequestHandler } from '@sveltejs/kit';
-import { OAuth2RequestError } from 'arctic';
+import { OAuth2RequestError, OAuth2Tokens } from 'arctic';
 import { eq } from 'drizzle-orm';
 import { generateId } from 'lucia';
 
@@ -33,7 +33,7 @@ export const GET: RequestHandler = async ({ url, cookies, locals }) => {
     const response = await fetch("https://api.dropboxapi.com/2/users/get_current_account", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${tokens.accessToken}`
+        Authorization: `Bearer ${(tokens.data as { access_token: string }).access_token}`
       }
     });
     const user: DropboxUser = await response.json();

@@ -3,7 +3,6 @@ import { and, eq } from "drizzle-orm";
 import type { PageServerLoad } from "./$types";
 import { ScougiTable } from "$lib/db/schema";
 import { error } from "@sveltejs/kit";
-import { trpcServer } from "$lib/server";
 
 export const ssr = false;
 
@@ -25,6 +24,9 @@ export const load: PageServerLoad = async (evt) => {
   if (defaultPage > scougi.pages) {
     defaultPage = scougi.pages;
   }
-  trpcServer.scougi.page.ssr({ scougi_id: scougi.id, page: defaultPage - 1 }, evt);
+  // await queryClient.prefetchQuery({
+  //   queryKey: ['post', postId],
+  //   queryFn: () => api(fetch).getPostById(postId),
+  // })
   return { scougi, page: defaultPage }
 }

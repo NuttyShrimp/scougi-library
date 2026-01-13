@@ -1,5 +1,4 @@
 import { PDFDocument } from "pdf-lib";
-import { trpc } from "./trpc";
 
 export const downloadFromDropbox = async (url: string): Promise<PDFDocument> => {
   const previewURL = new URL(url);

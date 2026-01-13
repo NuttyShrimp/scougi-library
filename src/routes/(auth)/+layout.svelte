@@ -1,9 +1,8 @@
 <script lang="ts">
-	import type { LayoutData } from './$types';
-
-	export let data: LayoutData;
+	import type { LayoutProps } from './$types';
+	let { children }: LayoutProps = $props();
 </script>
 
 <div class="container mx-auto p-4">
-	<slot />
+	{@render children()}
 </div>

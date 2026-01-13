@@ -7,13 +7,9 @@
 		TextContent
 	} from 'pdfjs-dist/types/src/display/api';
 	import 'pdfjs-dist/web/pdf_viewer.css';
-	import { createEventDispatcher } from 'svelte';
+	import type { Snippet } from 'svelte';
 	import type { PdfLoadSuccess, PdfPageContent } from 'svelte-pdf-simple';
-
-	let dispatch = createEventDispatcher<{
-		load_success: PdfLoadSuccess;
-		render: boolean;
-	}>();
+	import { watch } from 'runed';
 
 	type AdditionalParameters = Omit<
 		DocumentInitParameters,
@@ -34,18 +30,24 @@
 		height?: number;
 	};
 
-	export let props: Properties;
+	type Props = {
+		props: Properties;
+		onload_success?: (p1: PdfLoadSuccess) => void;
+		onrender?: (p1: boolean) => void;
+		loading: Snippet;
+	};
+	let { props, onrender, onload_success, loading }: Props = $props();
 
 	export async function goToPage(pageNumber: number): Promise<void> {
 		if (pageNumber > pdfDoc.numPages || pageNumber < 1) return;
 		await renderPage(pdfDoc, pageNumber);
 	}
 
-	let canvas: HTMLCanvasElement;
-	let textLayer: HTMLDivElement;
+	let canvas: HTMLCanvasElement | null = $state(null);
+	let textLayer: HTMLDivElement | null = $state(null);
 	let pdfDoc: PDFDocumentProxy;
 	let pdfPage: PDFPageProxy;
-	$: _props = {
+	let _props = $derived({
 		page: 1,
 		scale: 1.0,
 		offsetX: 0,
@@ -53,19 +55,22 @@
 		withAnnotations: false,
 		withTextContent: false,
 		...props
-	};
-	let pageScale = 1;
-	$: isPdfLoadSuccess = false;
-	$: isPdfPageRenderSuccess = false;
+	});
+	let pageScale = $state(1);
+	let isPdfPageRenderSuccess = $state(false);
+	let renderCancel: (() => void) | null = $state(null);
 
 	pdfjs.GlobalWorkerOptions.workerSrc = `https://cdn.jsdelivr.net/npm/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
-	$: {
-		if (_props.url === undefined && _props.data === undefined && _props.path === undefined) {
-			console.warn('[svelte-pdf-simple] Missing pdf data source.');
+	watch(
+		() => _props.data,
+		() => {
+			if (_props.url === undefined && _props.data === undefined && _props.path === undefined) {
+				console.warn('[svelte-pdf-simple] Missing pdf data source.');
+			}
+			loadPdf();
 		}
-		loadPdf();
-	}
+	);
 
 	async function renderPage(doc: PDFDocumentProxy, pageNumber: number): Promise<PdfPageContent> {
 		pdfPage = await doc.getPage(pageNumber);
@@ -91,7 +96,7 @@
 		pageScale = scale;
 
 		await fillCanvas(pdfPage, scale ?? 1, _props.offsetX ?? 0, _props.offsetY ?? 0);
-		dispatch('render', true);
+		onrender?.(true);
 
 		return {
 			...(annotations != null && { annotations }),
@@ -113,14 +118,16 @@
 					'https://mozilla.github.io/pdf.js/web/standard_fonts/'
 			}).promise;
 
-			isPdfLoadSuccess = true;
+			if (renderCancel) {
+				renderCancel();
+				renderCancel = null;
+			}
 			const pageContent = await renderPage(pdfDoc, _props.page);
 			isPdfPageRenderSuccess = true;
 
-			dispatch('load_success', { totalPages: pdfDoc.numPages, ...pageContent });
+			onload_success?.({ totalPages: pdfDoc.numPages, ...pageContent });
 		} catch (error: unknown) {
 			console.log(error);
-			isPdfLoadSuccess = false;
 		}
 	}
 
@@ -130,12 +137,16 @@
 		offsetX: number,
 		offsetY: number
 	): Promise<void> => {
+		if (!canvas || !textLayer) return;
 		const canvasContext = canvas.getContext('2d')!;
 		const viewport = page.getViewport({ scale, offsetX, offsetY });
 		canvas.height = viewport.height;
 		canvas.width = viewport.width;
 
-		await pdfPage.render({ canvasContext, viewport }).promise;
+		let renderTask = pdfPage.render({ canvasContext, viewport });
+		renderCancel = renderTask.cancel;
+		await renderTask.promise;
+		renderCancel = null;
 		const textContent = await page.getTextContent();
 
 		textLayer.style.left = canvas.offsetLeft + 'px';
@@ -150,19 +161,12 @@
 	};
 </script>
 
-{#if isPdfLoadSuccess}
-	<div style={`--scale-factor: ${pageScale}`} class="relative">
-		<canvas
-			id="pdf-canvas"
-			class:show={isPdfPageRenderSuccess}
-			{...isPdfPageRenderSuccess && { ...$$restProps }}
-			bind:this={canvas}
-		/>
-		<div bind:this={textLayer} class="textLayer"></div>
-	</div>
-{/if}
+<div style={`--scale-factor: ${pageScale}`} class="relative">
+	<canvas id="pdf-canvas" class:show={isPdfPageRenderSuccess} bind:this={canvas}></canvas>
+	<div bind:this={textLayer} class="textLayer"></div>
+</div>
 {#if !isPdfPageRenderSuccess}
-	<slot name="loading" />
+	{@render loading()}
 {/if}
 
 <style>

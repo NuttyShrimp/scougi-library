@@ -1,8 +1,11 @@
 <script lang="ts">
 	import type { Writable } from 'svelte/store';
 
-	export let max: number;
-	export let counter: Writable<number>;
+	type Props = {
+		max: number;
+		counter: Writable<number>;
+	};
+	let { max, counter }: Props = $props();
 </script>
 
 <div>

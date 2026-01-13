@@ -1,11 +1,17 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
-	export let once = false;
-	export let top = 0;
-	export let bottom = 0;
-	export let left = 0;
-	export let right = 0;
-	let intersecting = false;
+	import { onMount, type Snippet } from 'svelte';
+	let intersecting = $state(false);
+
+	type Props = {
+		once?: boolean;
+		top?: number;
+		bottom?: number;
+		left?: number;
+		right?: number;
+		children: Snippet<[boolean]>;
+	};
+
+	let { once = false, top = 0, bottom = 0, left = 0, right = 0, children }: Props = $props();
 
 	let container: HTMLDivElement;
 	onMount(() => {
@@ -25,23 +31,9 @@
 			observer.observe(container);
 			return () => observer.unobserve(container);
 		}
-		// function handler() {
-		// 	const bcr = container.getBoundingClientRect();
-		// 	intersecting = (
-		// 		(bcr.bottom + bottom) > 0 &&
-		// 		(bcr.right + right) > 0 &&
-		// 		(bcr.top - top) < window.innerHeight &&
-		// 		(bcr.left - left) < window.innerWidth
-		// 	);
-		// 	if (intersecting && once) {
-		// 		window.removeEventListener('scroll', handler);
-		// 	}
-		// }
-		// window.addEventListener('scroll', handler);
-		// return () => window.removeEventListener('scroll', handler);
 	});
 </script>
 
 <div bind:this={container}>
-	<slot {intersecting}></slot>
+	{@render children(intersecting)}
 </div>

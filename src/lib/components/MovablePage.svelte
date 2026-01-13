@@ -2,30 +2,27 @@
 	import { onDestroy, onMount } from 'svelte';
 	import ScougiPage from './ScougiPage.svelte';
 	import createPanZoom, { type PanZoom } from 'panzoom';
-	import Fa from 'svelte-fa';
-	import {
-		faICursor,
-		faMagnifyingGlassMinus,
-		faMagnifyingGlassPlus
-	} from '@fortawesome/free-solid-svg-icons';
+	import { TextSelect, ZoomIn, ZoomOut } from '@lucide/svelte';
 
-	export let data: string;
+	let { data }: { data: string } = $props();
 
-	let zoomContainer: HTMLDivElement;
-	let panZoomInstance: PanZoom;
-	let selecting = false;
-	let hasBeenRendered = false;
+	let zoomContainer: HTMLDivElement | null = $state(null);
+	let panZoomInstance: PanZoom | null = $state(null);
+	let selecting = $state(false);
+	let hasBeenRendered = $state(false);
 
 	onMount(() => {
-		panZoomInstance = createPanZoom(zoomContainer, {
-			bounds: true,
-			smoothScroll: true,
-			boundsPadding: 0.25,
-			minZoom: 0.25
-		});
+		if (zoomContainer) {
+			panZoomInstance = createPanZoom(zoomContainer, {
+				bounds: true,
+				smoothScroll: true,
+				boundsPadding: 0.25,
+				minZoom: 0.25
+			});
+		}
 	});
 	onDestroy(() => {
-		panZoomInstance.dispose();
+		panZoomInstance?.dispose();
 	});
 
 	const zoomIn = (e: MouseEvent) => {
@@ -48,7 +45,8 @@
 		if (hasBeenRendered) return;
 		hasBeenRendered = true;
 		setTimeout(() => {
-			panZoomInstance.zoomTo(
+			if (!zoomContainer) return;
+			panZoomInstance?.zoomTo(
 				zoomContainer.clientWidth * 0.5,
 				zoomContainer.clientHeight * 0.5,
 				0.45
@@ -61,30 +59,33 @@
 	<div class="join absolute top-0 z-10 mt-2">
 		<button
 			class="btn btn-sm btn-square join-item"
-			on:click={zoomOut}
-			on:dblclick={(e) => e.stopPropagation()}
+			onclick={zoomOut}
+			ondblclick={(e) => e.stopPropagation()}
 		>
-			<Fa icon={faMagnifyingGlassMinus} size="lg" /></button
-		>
+			<ZoomOut size="20px" />
+		</button>
 		<button
 			class="btn btn-sm btn-square join-item"
-			on:click={zoomIn}
-			on:dblclick={(e) => e.stopPropagation()}
+			onclick={zoomIn}
+			ondblclick={(e) => e.stopPropagation()}
 		>
-			<Fa icon={faMagnifyingGlassPlus} size="lg" />
+			<ZoomIn size="20px" />
 		</button>
 		<button
 			class={'btn btn-sm btn-square join-item ' + (selecting ? 'btn-active' : '')}
-			on:dblclick={(e) => e.stopPropagation()}
-			on:click={() => {
+			ondblclick={(e) => e.stopPropagation()}
+			onclick={() => {
+				if (!panZoomInstance) return;
 				selecting = !selecting;
 				if (selecting) {
 					panZoomInstance.pause();
 				} else {
 					panZoomInstance.resume();
 				}
-			}}><Fa icon={faICursor} size="lg" /></button
+			}}
 		>
+			<TextSelect size="20px" />
+		</button>
 	</div>
 	<div bind:this={zoomContainer}>
 		<ScougiPage {data} on:render={() => scalePage()} />

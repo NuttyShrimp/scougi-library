@@ -1,8 +1,13 @@
 <script lang="ts">
 	import type { DropboxChooserOptions, DropboxFile } from '$lib/types';
+	import type { Snippet } from 'svelte';
 	import { toast } from 'svelte-sonner';
 
-	export let file: DropboxFile | null = null;
+	type Props = {
+		file: DropboxFile | null;
+		children: Snippet;
+	};
+	let { file = $bindable(), children }: Props = $props();
 
 	const options: DropboxChooserOptions = {
 		success: (files: DropboxFile[]) => {
@@ -28,6 +33,6 @@
 	};
 </script>
 
-<button on:click={openDropboxChooser}>
-	<slot />
+<button onclick={openDropboxChooser}>
+	{@render children()}
 </button>

@@ -1,23 +1,27 @@
 <script lang="ts">
 	import scougiImg from '$lib/assets/scougi.png';
 	import logoImg from '$lib/assets/logo.png';
-	import { trpc } from '$lib/trpc';
 	import YearShelf from '$lib/components/YearShelf.svelte';
+	import { createQuery } from '@tanstack/svelte-query';
+	import { GetAllScougis } from '$lib/api';
 
-	let groupedScougis: Record<string, number[]> = {};
-
-	$: scougiQuery = trpc.scougi.all.query();
-	$: {
-		if ($scougiQuery.data) {
-			$scougiQuery.data.forEach((s) => {
-				if (!groupedScougis[s.year]) {
-					groupedScougis[s.year] = [];
+	const scougiQuery = createQuery(() => ({
+		queryKey: ['scougis'],
+		queryFn: GetAllScougis
+	}));
+	let groupedScougis = $derived.by(() => {
+		const scougis: Record<string, number[]> = {};
+		if (scougiQuery.data) {
+			scougiQuery.data.forEach((s) => {
+				if (!scougis[s.year]) {
+					scougis[s.year] = [];
 				}
-				groupedScougis[s.year][s.trim] = s.id;
+				scougis[s.year][s.trim] = s.id;
 			});
 		}
-	}
-	$: scougiKeys = Object.keys(groupedScougis).sort().reverse();
+		return scougis;
+	});
+	const scougiKeys = $derived(Object.keys(groupedScougis).sort().reverse());
 </script>
 
 <div
@@ -30,14 +34,14 @@
 	</div>
 </div>
 
-{#if $scougiQuery.data}
+{#if scougiQuery.data}
 	<div class="container mx-auto">
-		{#each scougiKeys as year}
+		{#each scougiKeys as year (year)}
 			<YearShelf {year} trims={groupedScougis[year]} />
 		{/each}
 	</div>
-{:else if $scougiQuery.isError}
-	<p>Error: {$scougiQuery.error.message}</p>
+{:else if scougiQuery.isError}
+	<p>Error: {scougiQuery.error.message}</p>
 {:else}
 	<div class="flex flex-col items-center gap-4">
 		<div class="skeleton w-32 h-12"></div>
